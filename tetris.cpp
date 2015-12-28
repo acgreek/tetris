@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <string.h>
 #include "keyboard.h"
-#define DELAY 60000
+int delay = 90000;
 
 #define MAXBOARDH 1000
 #define MAXBOARDW 1000
@@ -40,6 +40,24 @@ class Block {
             }
             board[x_][y_] = 'o';
         }
+        bool left() {
+            if (!done_moving() && x_ > 0 && board[x_-1][y_] == ' ') {
+                board[x_][y_]=' ';
+                x_--;
+                board[x_][y_]='o';
+                return true;
+            };
+            return false;
+        }
+        bool right() {
+            if (!done_moving() && x_ < max_x&& board[x_+1][y_] == ' ') {
+                board[x_][y_]=' ';
+                x_++;
+                board[x_][y_]='o';
+                return true;
+            };
+            return false;
+        }
         bool done_moving() {
             return dy_ == 0 && dx_ == 0;
         }
@@ -52,6 +70,7 @@ class Block {
 std::list<Block> blocks;
 
 
+
 int main(int argc, char *argv[]) {
     initscr();
     noecho();
@@ -59,12 +78,35 @@ int main(int argc, char *argv[]) {
     memset(board, ' ', sizeof(board[0][0]) * MAXBOARDW* MAXBOARDH);
     getmaxyx(stdscr, max_y, max_x);
     blocks.push_back(Block(0,0));
-    while(1) {
+    bool done= false;
+    while(!done) {
         clear();
+        Block &b = blocks.back();
+        b.move();
+        if (kbhit()) {
+            char c = lgetch();
+            switch (c){
+                case 'q': done=true;break;
+                case 'a': b.left();break;
+                case 'd': b.right();break;
+            }
+
+        }
         std::for_each(blocks.begin(), blocks.end(), [](Block & b) {b.draw();});
         refresh();
-        usleep(DELAY);
-        /*
+        usleep(delay);
+        if (b.done_moving()) {
+            blocks.push_back(Block(0,0));
+        }
+
+    }
+    endwin();
+}
+
+
+
+
+/*
         next_x = x + direction;
         if (next_x >= max_x || next_x < 0) {
             direction*= -1;
@@ -72,12 +114,3 @@ int main(int argc, char *argv[]) {
             x+= direction;
         }
         */
-        Block &b = blocks.back();
-        if (b.done_moving()) {
-            blocks.push_back(Block(0,0));
-        }
-        b.move();
-
-    }
-    endwin();
-}
