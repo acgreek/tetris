@@ -4,16 +4,14 @@
 #include <algorithm>
 #include <string.h>
 #include "keyboard.h"
-int delay = 90000;
+int delay = 3000;
 
 #define MAXBOARDH 1000
 #define MAXBOARDW 1000
 
-
 #define CLEAR_BLOCK ' '
 
 static char board[MAXBOARDW][MAXBOARDH];
-
 
 static int max_y = 0, max_x = 0;
 class Movable {
@@ -63,13 +61,11 @@ class Block : public Movable {
 
             dx_= dy_ = 0;
         }
-
         void uncheckedMoveLeft() {
             board[x_][y_]= CLEAR_BLOCK;
             x_--;
             board[x_][y_]='o';
         }
-
         bool left() {
             if (canMoveLeft()) {
                 uncheckedMoveLeft();
@@ -110,7 +106,6 @@ class Piece {
         Piece() {}
         virtual ~Piece() {}
         virtual void construct() = 0 ;
-
         virtual void move() {
             blist::iterator eitr = litr_;
             eitr++;
@@ -175,7 +170,6 @@ class LogPiece :public Piece {
         }
     private:
         int offset_;
-
 };
 
 int main(int argc, char *argv[]) {
@@ -184,20 +178,24 @@ int main(int argc, char *argv[]) {
     curs_set(FALSE);
     memset(board, ' ', sizeof(board[0][0]) * MAXBOARDW* MAXBOARDH);
     getmaxyx(stdscr, max_y, max_x);
-    //blocks.push_back(Block(0,0));
     LogPiece logPeace;
 
     logPeace.construct();
     bool done= false;
+    int moveDownCount = 100;
+    int currentCount = 1;
     while(!done) {
         clear();
-        logPeace.move();
+        if (currentCount % moveDownCount == 0 )
+            logPeace.move();
+        currentCount++;
         if (kbhit()) {
             char c = lgetch();
             switch (c){
                 case 'q': done=true;break;
                 case 'a': logPeace.left();break;
                 case 'd': logPeace.right();break;
+                case 's': logPeace.move();break;
             }
         }
         std::for_each(blocks.begin(), blocks.end(), [](Block & b) {b.draw();});
@@ -207,19 +205,7 @@ int main(int argc, char *argv[]) {
             logPeace = LogPiece();
             logPeace.construct();
         }
-
     }
     endwin();
 }
 
-
-
-
-/*
-        next_x = x + direction;
-        if (next_x >= max_x || next_x < 0) {
-            direction*= -1;
-        } else {
-            x+= direction;
-        }
-        */
