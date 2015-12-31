@@ -27,7 +27,8 @@ class Block : public Movable {
         Block() :x_(0), y_(0){dy_ = 1;dx_ = 0;}
         Block(int x, int y) :x_(x), y_(y){dy_ = 1;dx_ =0;}
         void draw() {
-            mvprintw(y_, x_, "o");
+            if (x_ >=0)
+                mvprintw(y_, x_, "o");
         }
         void unmark() {
             board[x_][y_] = CLEAR_BLOCK;
@@ -274,6 +275,56 @@ class LZPiece :public Piece {
             --litr_;
         }
         virtual void rotate() {
+            unmarkAll();
+            if (dir_ == HORIZONAL) {
+                if (sitr_->y_ > 0 && CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_-1]){
+                    markAll();
+                    return;
+                }
+                if (sitr_->y_ + 2 > max_y || CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_+1]) {
+                    markAll();
+                    return;
+                }
+                if (CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_+2]) {
+                    markAll();
+                    return;
+                }
+                blist::iterator citr = sitr_;
+                citr->x_++;
+                citr->y_--;
+                citr++;citr++;
+                citr->x_--;
+                citr->y_++;
+                citr++;
+                citr->x_-=2;
+                citr->y_+=2;
+                dir_ = VERTICAL;
+            }
+            else {
+                if (sitr_->x_ == 0 || CLEAR_BLOCK != board[sitr_->x_-1][sitr_->y_+1]) {
+                    markAll();
+                    return;
+                }
+                if (sitr_->x_+2 > max_x || CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_+1]) {
+                    markAll();
+                    return;
+                }
+                if (CLEAR_BLOCK != board[sitr_->x_+2][sitr_->y_+1]) {
+                    markAll();
+                    return;
+                }
+                blist::iterator citr = sitr_;
+                citr->x_--;
+                citr->y_++;
+                citr++;citr++;
+                citr->x_++;
+                citr->y_--;
+                citr++;
+                citr->x_+=2;
+                citr->y_-=2;
+                dir_ = HORIZONAL;
+            }
+            markAll();
         }
     private:
         int offset_;
@@ -294,6 +345,56 @@ class ZPiece :public Piece {
             --litr_;
         }
         virtual void rotate() {
+            unmarkAll();
+            if (dir_ == HORIZONAL) {
+                if (sitr_->y_ > 0 && CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_-1]){
+                    markAll();
+                    return;
+                }
+                if (sitr_->y_ + 2 > max_y || CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_+1]) {
+                    markAll();
+                    return;
+                }
+                if (CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_+2]) {
+                    markAll();
+                    return;
+                }
+                blist::iterator citr = sitr_;
+                citr->x_++;
+                citr->y_--;
+                citr++;citr++;
+                citr->x_--;
+                citr->y_++;
+                citr++;
+                citr->x_-=2;
+                citr->y_+=2;
+                dir_ = VERTICAL;
+            }
+            else {
+                if (sitr_->x_ == 0 || CLEAR_BLOCK != board[sitr_->x_-1][sitr_->y_+1]) {
+                    markAll();
+                    return;
+                }
+                if (sitr_->x_+2 > max_x || CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_+1]) {
+                    markAll();
+                    return;
+                }
+                if (CLEAR_BLOCK != board[sitr_->x_+2][sitr_->y_+1]) {
+                    markAll();
+                    return;
+                }
+                blist::iterator citr = sitr_;
+                citr->x_--;
+                citr->y_++;
+                citr++;citr++;
+                citr->x_++;
+                citr->y_--;
+                citr++;
+                citr->x_+=2;
+                citr->y_-=2;
+                dir_ = HORIZONAL;
+            }
+            markAll();
         }
     private:
         int offset_;
@@ -308,7 +409,7 @@ class PieceSelector {
                     z_.construct();
                     return z_;
                 case LZED:
-                    currentPiece_ = LZED;
+                    currentPiece_ = SQUARE;
                     lz_.construct();
                     return lz_;
                 case SQUARE:
