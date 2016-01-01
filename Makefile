@@ -1,4 +1,4 @@
-CXXFLAGS =-ggdb3 -Wall -std=c++0x
+CXXFLAGS =-ggdb3 -Wall -std=c++11
 LDLIBS=	-lncurses
 all: tetris
 

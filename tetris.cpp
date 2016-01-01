@@ -3,6 +3,7 @@
 #include <list>
 #include <algorithm>
 #include <string.h>
+#include <math.h>
 #include "keyboard.h"
 int delay = 3000;
 
@@ -26,6 +27,12 @@ class Block : public Movable {
     public:
         Block() :x_(0), y_(0){dy_ = 1;dx_ = 0;}
         Block(int x, int y) :x_(x), y_(y){dy_ = 1;dx_ =0;}
+        void set(int x, int y) {
+            unmark();
+            x_ = x;
+            y_ = y;
+            mark();
+        }
         void draw() {
             if (x_ >=0)
                 mvprintw(y_, x_, "o");
@@ -53,7 +60,7 @@ class Block : public Movable {
             }else   {
                 stopMoving();
             }
-            board[x_][y_] = 'o';
+           mark();
         }
         bool canMoveLeft() {
             return (!done_moving() && x_ > 0 && board[x_-1][y_] == CLEAR_BLOCK);
@@ -150,7 +157,6 @@ class Piece {
             eitr++;
             return (eitr != std::find_if(sitr_, eitr, [](Block &b)->bool {return b.done_moving();}));
         }
-    protected:
         void unmarkAll() {
             blist::iterator eitr = litr_;
             eitr++;
@@ -162,6 +168,7 @@ class Piece {
             std::for_each(sitr_, eitr, [](Block & b) {b.unmark();});
 
         }
+    protected:
         blist::iterator sitr_;
         blist::iterator litr_;
         enum {HORIZONAL, VERTICAL} dir_;
@@ -173,6 +180,7 @@ class LogPiece :public Piece {
             offset_ = 0;
         }
         virtual void construct() {
+            dir_=HORIZONAL;
             blocks.push_back(Block(offset_ + 0,0));
             sitr_ = blocks.end();
             --sitr_;
@@ -233,10 +241,8 @@ class LogPiece :public Piece {
                 dir_ = HORIZONAL;
             }
             markAll();
-
         }
     private:
-
         int offset_;
 };
 class SquarePiece :public Piece {
@@ -245,6 +251,7 @@ class SquarePiece :public Piece {
             offset_ = 0;
         }
         virtual void construct() {
+            dir_=HORIZONAL;
             blocks.push_back(Block(offset_ + 0,0));
             sitr_ = blocks.end();
             --sitr_;
@@ -265,6 +272,7 @@ class LZPiece :public Piece {
             offset_ = 0;
         }
         virtual void construct() {
+            dir_=HORIZONAL;
             blocks.push_back(Block(offset_ + 0,1));
             sitr_ = blocks.end();
             --sitr_;
@@ -277,51 +285,43 @@ class LZPiece :public Piece {
         virtual void rotate() {
             unmarkAll();
             if (dir_ == HORIZONAL) {
-                if (sitr_->y_ > 0 && CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_-1]){
+                if (sitr_->y_-2 > 0 && CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_-2]){
                     markAll();
                     return;
                 }
-                if (sitr_->y_ + 2 > max_y || CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_+1]) {
-                    markAll();
-                    return;
-                }
-                if (CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_+2]) {
+                if (sitr_->y_ + 1 > max_y || CLEAR_BLOCK != board[sitr_->x_+2][sitr_->y_+1]) {
                     markAll();
                     return;
                 }
                 blist::iterator citr = sitr_;
                 citr->x_++;
-                citr->y_--;
-                citr++;citr++;
-                citr->x_--;
-                citr->y_++;
+                citr->y_-=2;
                 citr++;
-                citr->x_-=2;
-                citr->y_+=2;
+                citr->y_-=1;
+                citr++;
+                citr->x_++;
+                citr++;
+                citr->y_+=1;
                 dir_ = VERTICAL;
             }
             else {
-                if (sitr_->x_ == 0 || CLEAR_BLOCK != board[sitr_->x_-1][sitr_->y_+1]) {
+                if (sitr_->x_ == 0 || CLEAR_BLOCK != board[sitr_->x_-1][sitr_->y_+2]) {
                     markAll();
                     return;
                 }
-                if (sitr_->x_+2 > max_x || CLEAR_BLOCK != board[sitr_->x_+1][sitr_->y_+1]) {
-                    markAll();
-                    return;
-                }
-                if (CLEAR_BLOCK != board[sitr_->x_+2][sitr_->y_+1]) {
+                if (sitr_->x_+2 > max_x || CLEAR_BLOCK != board[sitr_->x_+2][sitr_->y_+1]) {
                     markAll();
                     return;
                 }
                 blist::iterator citr = sitr_;
                 citr->x_--;
-                citr->y_++;
-                citr++;citr++;
-                citr->x_++;
-                citr->y_--;
-                citr++;
-                citr->x_+=2;
-                citr->y_-=2;
+                citr->y_+=2;
+                citr--;
+                citr->y_+=1;
+                citr--;
+                citr->x_--;
+                citr--;
+                citr->y_-=1;
                 dir_ = HORIZONAL;
             }
             markAll();
@@ -335,6 +335,7 @@ class ZPiece :public Piece {
             offset_ = 0;
         }
         virtual void construct() {
+            dir_=HORIZONAL;
             blocks.push_back(Block(offset_ + 0,0));
             sitr_ = blocks.end();
             --sitr_;
@@ -360,14 +361,14 @@ class ZPiece :public Piece {
                     return;
                 }
                 blist::iterator citr = sitr_;
-                citr->x_++;
-                citr->y_--;
-                citr++;citr++;
-                citr->x_--;
-                citr->y_++;
+                citr->x_+=2;
+                citr->y_-=1;
                 citr++;
-                citr->x_-=2;
-                citr->y_+=2;
+                citr->x_+=1;
+                citr++;
+                citr->y_-=1;
+                citr++;
+                citr->x_-=1;
                 dir_ = VERTICAL;
             }
             else {
@@ -384,14 +385,14 @@ class ZPiece :public Piece {
                     return;
                 }
                 blist::iterator citr = sitr_;
-                citr->x_--;
-                citr->y_++;
-                citr++;citr++;
-                citr->x_++;
-                citr->y_--;
+                citr->x_-=2;
+                citr->y_+=1;
                 citr++;
-                citr->x_+=2;
-                citr->y_-=2;
+                citr->x_-=1;
+                citr++;
+                citr->y_+=1;
+                citr++;
+                citr->x_+=1;
                 dir_ = HORIZONAL;
             }
             markAll();
@@ -402,25 +403,25 @@ class ZPiece :public Piece {
 class PieceSelector {
     public:
         PieceSelector(): currentPiece_(SQUARE) {}
-        Piece & getNextPiece() {
+        Piece * getNextPiece() {
             switch(currentPiece_) {
                 case ZED:
                     currentPiece_ = LZED;
                     z_.construct();
-                    return z_;
+                    return &z_;
                 case LZED:
                     currentPiece_ = SQUARE;
                     lz_.construct();
-                    return lz_;
-                case SQUARE:
-                    currentPiece_ = LOG;
-                    log_.construct();
-                    return log_;
-                default:
+                    return &lz_;
                 case LOG:
                     currentPiece_ = ZED;
+                    log_.construct();
+                    return &log_;
+                default:
+                case SQUARE:
+                    currentPiece_ = LOG;
                     square_.construct();
-                    return square_;
+                    return &square_;
             }
         }
     private:
@@ -430,24 +431,75 @@ class PieceSelector {
         SquarePiece square_;
         LogPiece log_;
 };
+#include <iostream>
+#include <fstream>
+static void printBlocks(const char * name){
+    std::ofstream myfile;
+    myfile.open (name);
+    std::for_each(blocks.begin(), blocks.end(), [&myfile](Block & b) {myfile << " " << b.x_ << "," << b.y_; });
+    myfile << std::endl;
+    for (int i=0; i < max_y; i++) {
+        myfile << i << ":";
+        for (int j=0; j < 10; j++) {
+            char x[2];
+            x[1] = '\0';
+            x[0] = board[j][i];
+            myfile << x;
+            myfile.flush();
+        }
+        myfile << std::endl;
+    }
+    myfile.close();
+}
 
+static void shiftRowsDown(int row) {
+    printBlocks("dump1");
+    std::for_each(blocks.begin(), blocks.end(), [&row ](Block & b) {if (b.y_ == row ){  b.unmark();};});
+    blocks.erase(std::remove_if(blocks.begin(), blocks.end(), [&row](Block & b)->bool { return b.y_ == row;}), blocks.end()  );
+    printBlocks("dump2");
+    std::for_each(blocks.begin(), blocks.end(), [&row ](Block & b) {if (b.y_ < row ){ b.unmark(); b.y_++; b.mark();};});
+    std::for_each(blocks.begin(), blocks.end(), [&row ](Block & b) {b.mark();});
+    printBlocks("dump3");
+}
+#define MIN(A,B) (A >B ? B :A)
+static int checkCompleteRows() {
+    int rowsRemoved=0;
+    int i=max_y;
+    while (i > 0) {
+        int j=0;
+        for (; j<= max_x;j++) {
+            if (board[j][i]==CLEAR_BLOCK)
+                break;
+        }
+        if (max_x +1 ==j) {
+             rowsRemoved++;
+             shiftRowsDown(i);
+        } else {
+            i--;
+        }
+    }
+    return rowsRemoved;
+
+}
 int main(int argc, char *argv[]) {
+    int score = 0;
     initscr();
     noecho();
     curs_set(FALSE);
-    memset(board, ' ', sizeof(board[0][0]) * MAXBOARDW* MAXBOARDH);
+    memset(board, CLEAR_BLOCK, sizeof(board[0][0]) * MAXBOARDW* MAXBOARDH);
     getmaxyx(stdscr, max_y, max_x);
+    max_x = MIN(max_x,9);
 
     bool done= false;
     int moveDownCount = 100;
     int currentCount = 1;
     PieceSelector  pieceSelector;
-    Piece & curPiece =pieceSelector.getNextPiece();
+    Piece * curPiecep =pieceSelector.getNextPiece();
     while(!done) {
         bool needRedraw =false;
         clear();
         if (currentCount % moveDownCount == 0 ) {
-            curPiece.move();
+            curPiecep->move();
             needRedraw = true;
         }
         currentCount++;
@@ -456,21 +508,30 @@ int main(int argc, char *argv[]) {
             needRedraw = true;
             switch (c){
                 case 'q': done=true;break;
-                case 'a': curPiece.left();break;
-                case 'd': curPiece.right();break;
-                case 'z': curPiece.rotate();break;
-                case 'c': curPiece.rotate();break;
-                case 's': curPiece.move();break;
+                case 'a': curPiecep->left();break;
+                case 'd': curPiecep->right();break;
+                case 'z': curPiecep->rotate();break;
+                case 'c': curPiecep->rotate();break;
+                case 's': curPiecep->move();break;
             }
         }
         usleep(delay);
         if (needRedraw) {
+            if (curPiecep->done_moving()) {
+                switch (checkCompleteRows()) {
+                    case 4: score +=100; break;
+                    case 3: score +=50; break;
+                    case 2: score +=25; break;
+                    case 1: score +=10; break;
+                    default:
+                    case 0: score +=1; break;
+                }
+                curPiecep =pieceSelector.getNextPiece();
+                curPiecep->markAll();
+            }
             std::for_each(blocks.begin(), blocks.end(), [](Block & b) {b.draw();});
             wnoutrefresh(stdscr);
             doupdate();
-            if (curPiece.done_moving()) {
-                curPiece =pieceSelector.getNextPiece();
-            }
         }
     }
     endwin();
