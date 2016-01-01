@@ -219,6 +219,7 @@ class El:public Piece {
                 citr->y_-=1;
                 citr++;
                 citr->x_-=1;
+                citr->y_-=2;
                 dir_ = VERTICAL;
             }
             else {
@@ -423,7 +424,6 @@ class PieceSelector {
         PieceSelector(): currentPiece_(SQUARE) {}
         Piece * getNextPiece() {
             switch(currentPiece_) {
-#if 0
                 case ZED:
                     currentPiece_ = LZED;
                     z_.construct();
@@ -440,13 +440,11 @@ class PieceSelector {
                     currentPiece_ = EL;
                     pyramid_.construct();
                     return &pyramid_;
-#endif
                 default:
                 case EL:
                     currentPiece_ = LEL;
                     el_.construct();
                     return &el_;
-#if 0
                 case LEL:
                     currentPiece_ = SQUARE;
                     lel_.construct();
@@ -455,7 +453,6 @@ class PieceSelector {
                     currentPiece_ = LOG;
                     square_.construct();
                     return &square_;
-#endif
             }
         }
     private:
@@ -548,7 +545,7 @@ int main(int argc, char *argv[]) {
                 case 'a': curPiecep->left();break;
                 case 'd': curPiecep->right();break;
                 case 'z': curPiecep->rotate();break;
-                case 'c': curPiecep->rotate();break;
+                case 'c': curPiecep->rotateClockwise();break;
                 case 's': curPiecep->move();break;
             }
         }
