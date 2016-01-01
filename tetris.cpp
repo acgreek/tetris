@@ -217,7 +217,7 @@ static int checkCompleteRows() {
     return rowsRemoved;
 }
 
-int main(int argc, char *argv[]) {
+int main() {
     int score = 0;
      /* initialize random seed: */
     srand (time(NULL));
