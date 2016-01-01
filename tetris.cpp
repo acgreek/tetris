@@ -147,40 +147,41 @@ class PieceSelector {
     public:
         PieceSelector(): currentPiece_(SQUARE) {}
         Piece * getNextPiece() {
+            piece_type nextPiece = ( piece_type) (rand() % (LEL + 1));
             switch(currentPiece_) {
                 case ZED:
-                    currentPiece_ = LZED;
+                    currentPiece_ = nextPiece;
                     z_.construct();
                     return &z_;
                 case LZED:
-                    currentPiece_ = PYRAMID;
+                    currentPiece_ = nextPiece;
                     lz_.construct();
                     return &lz_;
                 case LOG:
-                    currentPiece_ = ZED;
+                    currentPiece_ = nextPiece;
                     log_.construct();
                     return &log_;
                 case PYRAMID:
-                    currentPiece_ = EL;
+                    currentPiece_ = nextPiece;
                     pyramid_.construct();
                     return &pyramid_;
-                default:
                 case EL:
-                    currentPiece_ = LEL;
+                    currentPiece_ = nextPiece;
                     el_.construct();
                     return &el_;
                 case LEL:
-                    currentPiece_ = SQUARE;
+                    currentPiece_ = nextPiece;
                     lel_.construct();
                     return &lel_;
+                default:
                 case SQUARE:
-                    currentPiece_ = LOG;
+                    currentPiece_ = nextPiece;
                     square_.construct();
                     return &square_;
             }
         }
     private:
-        enum {ZED, LZED, LOG, SQUARE, PYRAMID, EL, LEL} currentPiece_ ;
+        enum piece_type {ZED, LZED, LOG, SQUARE, PYRAMID, EL, LEL} currentPiece_ ;
         ZPiece z_;
         LZPiece lz_;
         SquarePiece square_;
@@ -218,6 +219,8 @@ static int checkCompleteRows() {
 
 int main(int argc, char *argv[]) {
     int score = 0;
+     /* initialize random seed: */
+    srand (time(NULL));
     initscr();
     noecho();
     curs_set(FALSE);
