@@ -3,17 +3,15 @@
 
 class LogPiece :public Piece {
     public:
-        LogPiece() {
-            offset_ = 0;
-        }
-        virtual void construct() {
+        LogPiece() { }
+        virtual void construct(int offset=0) {
             dir_=HORIZONAL;
-            blocks.push_back(Block(offset_ + 0,0));
+            blocks.push_back(Block(offset + 0,0));
             sitr_ = blocks.end();
             --sitr_;
-            blocks.push_back(Block(offset_ + 1,0));
-            blocks.push_back(Block(offset_ + 2,0));
-            blocks.push_back(Block(offset_ + 3,0));
+            blocks.push_back(Block(offset + 1,0));
+            blocks.push_back(Block(offset + 2,0));
+            blocks.push_back(Block(offset + 3,0));
             litr_ = blocks.end();
             --litr_;
         }
@@ -72,7 +70,5 @@ class LogPiece :public Piece {
             }
             markAll();
         }
-    private:
-        int offset_;
 };
 #endif

@@ -10,9 +10,9 @@ class Block : public Movable {
             y_ = y;
             mark();
         }
-        void draw() {
+        void draw(WINDOW * win) {
             if (x_ >=0)
-                mvprintw(y_, x_, "o");
+                mvwprintw(win, y_, x_, "o");
         }
         void unmark() {
             board[x_][y_] = CLEAR_BLOCK;

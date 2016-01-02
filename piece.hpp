@@ -4,7 +4,7 @@ class Piece {
     public:
         Piece():dir_(HORIZONAL) {}
         virtual ~Piece() {}
-        virtual void construct() = 0 ;
+        virtual void construct(int offset=0) = 0 ;
 
         virtual void move() {
             blist::iterator eitr = litr_;
@@ -143,6 +143,7 @@ class Piece {
         blist::iterator sitr_;
         blist::iterator litr_;
         enum {HORIZONAL, VERTICAL,UHORIZONAL, RVERTICAL} dir_;
+
 };
 
 #endif

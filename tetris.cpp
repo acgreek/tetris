@@ -24,172 +24,8 @@ static blist blocks;
 
 #include "piece.hpp"
 #include "logpiece.hpp"
-
-class SquarePiece :public Piece {
-    public:
-        SquarePiece() {
-            offset_ = 0;
-        }
-        virtual void construct() {
-            dir_=HORIZONAL;
-            blocks.push_back(Block(offset_ + 0,0));
-            sitr_ = blocks.end();
-            --sitr_;
-            blocks.push_back(Block(offset_ + 1,0));
-            blocks.push_back(Block(offset_ + 0,1));
-            blocks.push_back(Block(offset_ + 1,1));
-            litr_ = blocks.end();
-            --litr_;
-        }
-        virtual void rotateClockwise() {
-        }
-        virtual void rotateCounterClockwise() {
-        }
-    private:
-        int offset_;
-};
-class LZPiece :public Piece {
-    public:
-        LZPiece() {
-            offset_ = 0;
-        }
-        virtual void construct() {
-            dir_=HORIZONAL;
-            blocks.push_back(Block(offset_ + 0,1));
-            sitr_ = blocks.end();
-            --sitr_;
-            blocks.push_back(Block(offset_ + 1,1));
-            blocks.push_back(Block(offset_ + 1,0));
-            blocks.push_back(Block(offset_ + 2,0));
-            litr_ = blocks.end();
-            --litr_;
-        }
-    private:
-        int offset_;
-};
-class LEl:public Piece {
-    public:
-        LEl() {
-            offset_ = 0;
-        }
-        virtual void construct() {
-            dir_=HORIZONAL;
-            blocks.push_back(Block(offset_ + 0,0));
-            sitr_ = blocks.end();
-            --sitr_;
-            blocks.push_back(Block(offset_ + 0,1));
-            blocks.push_back(Block(offset_ + 1,1));
-            blocks.push_back(Block(offset_ + 2,1));
-            litr_ = blocks.end();
-            --litr_;
-        }
-    private:
-        int offset_;
-};
-class El:public Piece {
-    public:
-        El() {
-            offset_ = 0;
-        }
-        virtual void construct() {
-            dir_=HORIZONAL;
-            blocks.push_back(Block(offset_ + 0,1));
-            sitr_ = blocks.end();
-            --sitr_;
-            blocks.push_back(Block(offset_ + 0,0));
-            blocks.push_back(Block(offset_ + 1,0));
-            blocks.push_back(Block(offset_ + 2,0));
-            litr_ = blocks.end();
-            --litr_;
-        }
-    private:
-        int offset_;
-};
-class Pyramid :public Piece {
-    public:
-        Pyramid() {
-            offset_ = 0;
-        }
-        virtual void construct() {
-            dir_=HORIZONAL;
-            blocks.push_back(Block(offset_ + 0,1));
-            sitr_ = blocks.end();
-            --sitr_;
-            blocks.push_back(Block(offset_ + 1,0));
-            blocks.push_back(Block(offset_ + 1,1));
-            blocks.push_back(Block(offset_ + 2,1));
-            litr_ = blocks.end();
-            --litr_;
-        }
-    private:
-        int offset_;
-};
-class ZPiece :public Piece {
-    public:
-        ZPiece() {
-            offset_ = 0;
-        }
-        virtual void construct() {
-            dir_=HORIZONAL;
-            blocks.push_back(Block(offset_ + 0,0));
-            sitr_ = blocks.end();
-            --sitr_;
-            blocks.push_back(Block(offset_ + 1,0));
-            blocks.push_back(Block(offset_ + 1,1));
-            blocks.push_back(Block(offset_ + 2,1));
-            litr_ = blocks.end();
-            --litr_;
-        }
-    private:
-        int offset_;
-};
-class PieceSelector {
-    public:
-        PieceSelector(): currentPiece_(SQUARE) {}
-        Piece * getNextPiece() {
-            piece_type nextPiece = ( piece_type) (rand() % (LEL + 1));
-            switch(currentPiece_) {
-                case ZED:
-                    currentPiece_ = nextPiece;
-                    z_.construct();
-                    return &z_;
-                case LZED:
-                    currentPiece_ = nextPiece;
-                    lz_.construct();
-                    return &lz_;
-                case LOG:
-                    currentPiece_ = nextPiece;
-                    log_.construct();
-                    return &log_;
-                case PYRAMID:
-                    currentPiece_ = nextPiece;
-                    pyramid_.construct();
-                    return &pyramid_;
-                case EL:
-                    currentPiece_ = nextPiece;
-                    el_.construct();
-                    return &el_;
-                case LEL:
-                    currentPiece_ = nextPiece;
-                    lel_.construct();
-                    return &lel_;
-                default:
-                case SQUARE:
-                    currentPiece_ = nextPiece;
-                    square_.construct();
-                    return &square_;
-            }
-        }
-    private:
-        enum piece_type {ZED, LZED, LOG, SQUARE, PYRAMID, EL, LEL} currentPiece_ ;
-        ZPiece z_;
-        LZPiece lz_;
-        SquarePiece square_;
-        LogPiece log_;
-        Pyramid pyramid_;
-        El el_;
-        LEl lel_;
-};
+#include "pieces.hpp"
+#include "piece_selector.hpp"
 
 static void shiftRowsDown(int row) {
     std::for_each(blocks.begin(), blocks.end(), [&row ](Block & b) {if (b.y_ == row ){  b.unmark();};});
@@ -216,6 +52,17 @@ static int checkCompleteRows() {
     }
     return rowsRemoved;
 }
+WINDOW *create_newwin(int height, int width, int starty, int startx)
+{
+    WINDOW *local_win;
+    local_win = newwin(height, width, starty, startx);
+    box(local_win, 0 , 0);/* 0, 0 gives default characters
+                           * for the vertical and horizontal
+                           *                   * lines*/
+    wrefresh(local_win);/* Show that box */
+    return local_win;
+}
+
 
 int main() {
     int score = 0;
@@ -225,8 +72,12 @@ int main() {
     noecho();
     curs_set(FALSE);
     memset(board, CLEAR_BLOCK, sizeof(board[0][0]) * MAXBOARDW* MAXBOARDH);
+
     getmaxyx(stdscr, max_y, max_x);
     max_x = MIN(max_x,9);
+    WINDOW * score_win= create_newwin(3, 11, max_y-4, 0);
+    WINDOW * next_piece_win= create_newwin(5, 5, 2, 11);
+    max_y = max_y-4;
 
     bool done= false;
     int moveDownCount = 100;
@@ -267,8 +118,14 @@ int main() {
                 curPiecep =pieceSelector.getNextPiece();
                 curPiecep->markAll();
             }
-            std::for_each(blocks.begin(), blocks.end(), [](Block & b) {b.draw();});
+            std::for_each(blocks.begin(), blocks.end(), [](Block & b) {b.draw(stdscr);});
             wnoutrefresh(stdscr);
+            box(score_win, 0 , 0);
+            mvwprintw(score_win, 1, 1, "score: %d",score);
+            wnoutrefresh(score_win);/* Show that box */
+            box(next_piece_win, 0 , 0);
+            pieceSelector.drawNextPiece(next_piece_win);
+            wnoutrefresh(next_piece_win);/* Show that box */
             doupdate();
         }
     }
