@@ -21,6 +21,8 @@ typedef std::list<Block> blist;
 #include "pieces.hpp"
 #include "piece_selector.hpp"
 
+#define TETRIS_DEFAULT_WIDTH 9
+
 static void shiftRowsDown(blist & blocks, int row) {
     std::for_each(blocks.begin(), blocks.end(), [&row ](Block & b) {if (b.y_ == row ){  b.unmark();};});
     blocks.erase(std::remove_if(blocks.begin(), blocks.end(), [&row](Block & b)->bool { return b.y_ == row;}), blocks.end()  );
@@ -78,9 +80,17 @@ int main() {
     memset(board, CLEAR_BLOCK, sizeof(board[0][0]) * MAXBOARDW* MAXBOARDH);
     CursesSetup cursesSetup;
 
+
+
+
     getmaxyx(stdscr, max_y, max_x);
-    max_x = MIN(max_x,9);
-    WINDOW * score_win= create_newwin(3, 11, max_y-4, 0);
+    int centerX = max_x/2;
+    int offsetCenterX = centerX + TETRIS_DEFAULT_WIDTH/2;
+
+
+
+    max_x = MIN(max_x,TETRIS_DEFAULT_WIDTH);
+    WINDOW * score_win= create_newwin(3, 11, max_y-4, offsetCenterX);
     WINDOW * next_piece_win= create_newwin(5, 6, 2, 11);
     max_y = max_y-4;
     GameBoard tetrisGameBoard(max_x, max_y);
@@ -130,7 +140,7 @@ int main() {
                 std::for_each(nextblocks.begin(), nextblocks.end(), [&](Block & b) {b.draw(next_piece_win, "o", 1, 1);});
                 curPiecep->markAll();
             }
-            std::for_each(blocks.begin(), blocks.end(), [](Block & b) {b.draw(stdscr);});
+            std::for_each(blocks.begin(), blocks.end(), [&](Block & b) {b.draw(stdscr,"o",offsetCenterX,0);});
             wnoutrefresh(stdscr);
             box(score_win, 0 , 0);
             mvwprintw(score_win, 1, 1, "score: %d",score);
