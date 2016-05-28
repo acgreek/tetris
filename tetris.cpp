@@ -85,14 +85,15 @@ int main() {
 
     getmaxyx(stdscr, max_y, max_x);
     int centerX = max_x/2;
-    int offsetCenterX = centerX + TETRIS_DEFAULT_WIDTH/2;
+    int offsetCenterX = centerX + TETRIS_DEFAULT_WIDTH/2 -10;
 
 
 
     max_x = MIN(max_x,TETRIS_DEFAULT_WIDTH);
-    WINDOW * score_win= create_newwin(3, 11, max_y-4, offsetCenterX);
-    WINDOW * next_piece_win= create_newwin(5, 6, 2, 11);
-    max_y = max_y-4;
+    WINDOW * board_win= create_newwin(max_y-4,12,0, offsetCenterX-1);
+    WINDOW * score_win= create_newwin(3, 12, max_y-4, offsetCenterX-1);
+    WINDOW * next_piece_win= create_newwin(5, 6, 2, offsetCenterX + 11);
+    max_y = max_y-6;
     GameBoard tetrisGameBoard(max_x, max_y);
 
     bool done= false;
@@ -105,6 +106,7 @@ int main() {
     while(!done) {
         bool needRedraw =false;
         clear();
+        wclear(board_win);
         if (currentCount % moveDownCount == 0 ) {
             curPiecep->move();
             needRedraw = true;
@@ -140,8 +142,10 @@ int main() {
                 std::for_each(nextblocks.begin(), nextblocks.end(), [&](Block & b) {b.draw(next_piece_win, "o", 1, 1);});
                 curPiecep->markAll();
             }
-            std::for_each(blocks.begin(), blocks.end(), [&](Block & b) {b.draw(stdscr,"o",offsetCenterX,0);});
+            std::for_each(blocks.begin(), blocks.end(), [&](Block & b) {b.draw(board_win,"o",1,1);});
+            box(board_win, 0 , 0);
             wnoutrefresh(stdscr);
+            wnoutrefresh(board_win);
             box(score_win, 0 , 0);
             mvwprintw(score_win, 1, 1, "score: %d",score);
             wnoutrefresh(score_win);/* Show that box */
@@ -150,6 +154,9 @@ int main() {
             doupdate();
         }
     }
+    delwin(score_win);
+    delwin(board_win);
+    delwin(next_piece_win);
     std::cout << "final score:" <<  score << std::endl;
 };
 
