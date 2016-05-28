@@ -2,41 +2,38 @@
 class PieceSelector {
     public:
         PieceSelector(): currentPiece_(SQUARE) {}
-        void drawNextPiece(WINDOW * win) {
-           mvwprintw(win, 1,1, "next piece") ;
-        }
-        Piece * getNextPiece() {
+        Piece * getNextPiece(blist & blocks) {
             piece_type nextPiece = ( piece_type) (rand() % (LEL + 1));
             switch(currentPiece_) {
                 case ZED:
                     currentPiece_ = nextPiece;
-                    z_.construct();
-                    return &z_;
+                    z_.construct(blocks);
+                    return new ZPiece(z_);
                 case LZED:
                     currentPiece_ = nextPiece;
-                    lz_.construct();
-                    return &lz_;
+                    lz_.construct(blocks);
+                    return new LZPiece(lz_);
                 case LOG:
                     currentPiece_ = nextPiece;
-                    log_.construct();
-                    return &log_;
+                    log_.construct(blocks);
+                    return new LogPiece(log_);
                 case PYRAMID:
                     currentPiece_ = nextPiece;
-                    pyramid_.construct();
-                    return &pyramid_;
+                    pyramid_.construct(blocks);
+                    return new Pyramid(pyramid_);
                 case EL:
                     currentPiece_ = nextPiece;
-                    el_.construct();
-                    return &el_;
+                    el_.construct(blocks);
+                    return new El(el_);
                 case LEL:
                     currentPiece_ = nextPiece;
-                    lel_.construct();
-                    return &lel_;
+                    lel_.construct(blocks);
+                    return new LEl(lel_);
                 default:
                 case SQUARE:
                     currentPiece_ = nextPiece;
-                    square_.construct();
-                    return &square_;
+                    square_.construct(blocks);
+                    return new SquarePiece(square_);
             }
         }
     private:

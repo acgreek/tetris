@@ -2,7 +2,7 @@ class SquarePiece :public Piece {
     public:
         SquarePiece() {
         }
-        virtual void construct(int offset = 0) {
+        virtual void construct(blist & blocks,int offset = 0) {
             dir_=HORIZONAL;
             blocks.push_back(Block(offset + 0,0));
             sitr_ = blocks.end();
@@ -23,7 +23,7 @@ class LZPiece :public Piece {
         LZPiece() {
             offset_ = 0;
         }
-        virtual void construct(int offset=0) {
+        virtual void construct(blist & blocks,int offset=0) {
             dir_=HORIZONAL;
             blocks.push_back(Block(offset + 0,1));
             sitr_ = blocks.end();
@@ -42,7 +42,7 @@ class LEl:public Piece {
         LEl() {
             offset_ = 0;
         }
-        virtual void construct(int offset = 0) {
+        virtual void construct(blist & blocks,int offset = 0) {
             dir_=HORIZONAL;
             blocks.push_back(Block(offset + 0,0));
             sitr_ = blocks.end();
@@ -61,7 +61,7 @@ class El:public Piece {
         El() {
             offset_ = 0;
         }
-        virtual void construct(int offset = 0) {
+        virtual void construct(blist & blocks,int offset = 0) {
             dir_=HORIZONAL;
             blocks.push_back(Block(offset + 0,1));
             sitr_ = blocks.end();
@@ -78,7 +78,7 @@ class El:public Piece {
 class Pyramid :public Piece {
     public:
         Pyramid() { }
-        virtual void construct(int offset = 0 ) {
+        virtual void construct(blist & blocks,int offset = 0 ) {
             dir_=HORIZONAL;
             blocks.push_back(Block(offset + 0,1));
             sitr_ = blocks.end();
@@ -93,7 +93,7 @@ class Pyramid :public Piece {
 class ZPiece :public Piece {
     public:
         ZPiece() { }
-        virtual void construct(int offset=0) {
+        virtual void construct(blist & blocks,int offset=0) {
             dir_=HORIZONAL;
             blocks.push_back(Block(offset + 0,0));
             sitr_ = blocks.end();

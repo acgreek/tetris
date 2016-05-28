@@ -4,7 +4,7 @@
 class LogPiece :public Piece {
     public:
         LogPiece() { }
-        virtual void construct(int offset=0) {
+        virtual void construct(blist & blocks,int offset=0) {
             dir_=HORIZONAL;
             blocks.push_back(Block(offset + 0,0));
             sitr_ = blocks.end();

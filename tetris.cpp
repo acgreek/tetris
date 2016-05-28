@@ -5,36 +5,30 @@
 #include <string.h>
 #include <math.h>
 #include <iostream>
+#include <memory>
 #include "keyboard.h"
+#include "gameboard.h"
+
 int delay = 3000;
 
-#define MAXBOARDH 1000
-#define MAXBOARDW 1000
-
-#define CLEAR_BLOCK ' '
-
-static char board[MAXBOARDW][MAXBOARDH];
-
-static int max_y = 0, max_x = 0;
 #include "movable.hpp"
 #include "block.hpp"
 
 typedef std::list<Block> blist;
-static blist blocks;
 
 #include "piece.hpp"
 #include "logpiece.hpp"
 #include "pieces.hpp"
 #include "piece_selector.hpp"
 
-static void shiftRowsDown(int row) {
+static void shiftRowsDown(blist & blocks, int row) {
     std::for_each(blocks.begin(), blocks.end(), [&row ](Block & b) {if (b.y_ == row ){  b.unmark();};});
     blocks.erase(std::remove_if(blocks.begin(), blocks.end(), [&row](Block & b)->bool { return b.y_ == row;}), blocks.end()  );
     std::for_each(blocks.begin(), blocks.end(), [&row ](Block & b) {if (b.y_ < row ){ b.unmark(); b.y_++; b.mark();};});
     std::for_each(blocks.begin(), blocks.end(), [&row ](Block & b) {b.mark();});
 }
 #define MIN(A,B) (A >B ? B :A)
-static int checkCompleteRows() {
+static int checkCompleteRows(blist & blocks) {
     int rowsRemoved=0;
     int i=max_y;
     while (i > 0) {
@@ -45,17 +39,15 @@ static int checkCompleteRows() {
         }
         if (max_x +1 ==j) {
              rowsRemoved++;
-             shiftRowsDown(i);
+             shiftRowsDown(blocks, i);
         } else {
             i--;
         }
     }
     return rowsRemoved;
 }
-WINDOW *create_newwin(int height, int width, int starty, int startx)
-{
-    WINDOW *local_win;
-    local_win = newwin(height, width, starty, startx);
+WINDOW *create_newwin(int height, int width, int starty, int startx) {
+    auto *local_win = newwin(height, width, starty, startx);
     box(local_win, 0 , 0);/* 0, 0 gives default characters
                            * for the vertical and horizontal
                            *                   * lines*/
@@ -63,27 +55,43 @@ WINDOW *create_newwin(int height, int width, int starty, int startx)
     return local_win;
 }
 
+class CursesSetup {
+    public:
+        CursesSetup() {
+            initscr();
+            noecho();
+
+        }
+        ~CursesSetup (){
+            endwin();
+        }
+
+};
 
 int main() {
+    blist blocks;
+    blist nextblocks;
     int score = 0;
      /* initialize random seed: */
     srand (time(NULL));
-    initscr();
-    noecho();
     curs_set(FALSE);
     memset(board, CLEAR_BLOCK, sizeof(board[0][0]) * MAXBOARDW* MAXBOARDH);
+    CursesSetup cursesSetup;
 
     getmaxyx(stdscr, max_y, max_x);
     max_x = MIN(max_x,9);
     WINDOW * score_win= create_newwin(3, 11, max_y-4, 0);
-    WINDOW * next_piece_win= create_newwin(5, 5, 2, 11);
+    WINDOW * next_piece_win= create_newwin(5, 6, 2, 11);
     max_y = max_y-4;
+    GameBoard tetrisGameBoard(max_x, max_y);
 
     bool done= false;
     int moveDownCount = 100;
     int currentCount = 1;
     PieceSelector  pieceSelector;
-    Piece * curPiecep =pieceSelector.getNextPiece();
+    std::shared_ptr<Piece> curPiecep(pieceSelector.getNextPiece(blocks));
+    std::shared_ptr<Piece> nextPiecep(pieceSelector.getNextPiece(nextblocks));
+    std::for_each(nextblocks.begin(), nextblocks.end(), [&](Block & b) {b.draw(next_piece_win, "o", 1, 1);});
     while(!done) {
         bool needRedraw =false;
         clear();
@@ -107,7 +115,7 @@ int main() {
         usleep(delay);
         if (needRedraw) {
             if (curPiecep->done_moving()) {
-                switch (checkCompleteRows()) {
+                switch (checkCompleteRows(blocks)) {
                     case 4: score +=100; break;
                     case 3: score +=50; break;
                     case 2: score +=25; break;
@@ -115,7 +123,11 @@ int main() {
                     default:
                     case 0: score +=1; break;
                 }
-                curPiecep =pieceSelector.getNextPiece();
+                std::for_each(nextblocks.begin(), nextblocks.end(), [&](Block & b) {b.draw(next_piece_win," ", 1,1  );});
+                blocks.splice(blocks.begin(), nextblocks);
+                curPiecep = std::move(nextPiecep);
+                nextPiecep.reset( pieceSelector.getNextPiece(nextblocks));
+                std::for_each(nextblocks.begin(), nextblocks.end(), [&](Block & b) {b.draw(next_piece_win, "o", 1, 1);});
                 curPiecep->markAll();
             }
             std::for_each(blocks.begin(), blocks.end(), [](Block & b) {b.draw(stdscr);});
@@ -124,12 +136,10 @@ int main() {
             mvwprintw(score_win, 1, 1, "score: %d",score);
             wnoutrefresh(score_win);/* Show that box */
             box(next_piece_win, 0 , 0);
-            pieceSelector.drawNextPiece(next_piece_win);
             wnoutrefresh(next_piece_win);/* Show that box */
             doupdate();
         }
     }
-    endwin();
     std::cout << "final score:" <<  score << std::endl;
 };
 
