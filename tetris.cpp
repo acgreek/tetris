@@ -80,14 +80,9 @@ int main() {
     memset(board, CLEAR_BLOCK, sizeof(board[0][0]) * MAXBOARDW* MAXBOARDH);
     CursesSetup cursesSetup;
 
-
-
-
     getmaxyx(stdscr, max_y, max_x);
     int centerX = max_x/2;
     int offsetCenterX = centerX + TETRIS_DEFAULT_WIDTH/2 -10;
-
-
 
     max_x = MIN(max_x,TETRIS_DEFAULT_WIDTH);
     WINDOW * board_win= create_newwin(max_y-4,12,0, offsetCenterX-1);
