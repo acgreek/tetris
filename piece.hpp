@@ -6,42 +6,42 @@ class Piece {
         virtual ~Piece() {}
         virtual void construct(blist & blocks,int offset=0) = 0 ;
 
-        virtual void move() {
+        virtual void move(GameBoard &gb) {
             blist::iterator eitr = litr_;
             eitr++;
-            std::for_each(sitr_, eitr, [](Block & b) {b.unmark();});
-            if (eitr == std::find_if_not(sitr_, eitr, [](Block &b) {return b.canmove();})) {
+            std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
+            if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canmove(gb);})) {
                 std::for_each(sitr_, eitr, [](Block & b) {b.uncheckedMove();});
             }
             else {
                 sitr_->stopMoving();
 
             }
-            std::for_each(sitr_, eitr, [](Block & b) {b.mark();});
+            std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
         }
-        virtual bool left() {
+        virtual bool left(GameBoard &gb) {
             bool result = false;
             blist::iterator eitr = litr_;
             eitr++;
-            std::for_each(sitr_, eitr, [](Block & b) {b.unmark();});
-            if (eitr == std::find_if_not(sitr_, eitr, [](Block &b) {return b.canMoveLeft();})) {
-                std::for_each(sitr_, eitr, [](Block & b) {b.uncheckedMoveLeft();});
+            std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
+            if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMoveLeft(gb);})) {
+                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveLeft(gb);});
                 result =true;
             }
-            std::for_each(sitr_, eitr, [](Block & b) {b.mark();});
+            std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
             return result;
         }
 
-        virtual bool right() {
+        virtual bool right(GameBoard &gb) {
             bool result = false;
             blist::iterator eitr = litr_;
             eitr++;
-            std::for_each(sitr_, eitr, [](Block & b) {b.unmark();});
-            if (eitr == std::find_if_not(sitr_, eitr, [](Block &b) {return b.canMoveRight();})) {
-                std::for_each(sitr_, eitr, [](Block & b) {b.uncheckedMoveRight();});
+            std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
+            if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMoveRight(gb);})) {
+                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveRight(gb);});
                 result =true;
             }
-            std::for_each(sitr_, eitr, [](Block & b) {b.mark();});
+            std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
             return result;
         }
         bool done_moving() {
@@ -49,22 +49,21 @@ class Piece {
             eitr++;
             return (eitr != std::find_if(sitr_, eitr, [](Block &b)->bool {return b.done_moving();}));
         }
-        void unmarkAll() {
+        void unmarkAll(GameBoard &gb) {
             blist::iterator eitr = litr_;
             eitr++;
-            std::for_each(sitr_, eitr, [](Block & b) {b.unmark();});
+            std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
         }
-        void markAll() {
+        void markAll(GameBoard &gb) {
             blist::iterator eitr = litr_;
             eitr++;
-            std::for_each(sitr_, eitr, [](Block & b) {b.unmark();});
-
+            std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
         }
-        virtual void rotateClockwise() {
+        virtual void rotateClockwise(GameBoard &gb) {
             const blist::iterator centerItr = getCenter();
             int cx = centerItr->x_;
             int cy = centerItr->y_;
-            unmarkAll();
+            unmarkAll(gb);
             /*
              * -1,-1 -> 1 -1
              *  0,-1 -> 1,0
@@ -76,36 +75,36 @@ class Piece {
              *  -1,0 ->0,-1
             */
             std::vector<Modification> modifications;
-            if (canMove(cx-1,cy-1,cx+1,cy-1,modifications) &&
-                    canMove(cx,cy-1,cx+1,cy,modifications) &&
-                    canMove(cx+1,cy-1,cx+1,cy+1,modifications) &&
-                    canMove(cx+1,cy,cx,cy+1,modifications) &&
-                    canMove(cx+1,cy+1,cx-1,cy+1,modifications) &&
-                    canMove(cx,cy+1,cx-1,cy,modifications) &&
-                    canMove(cx-1,cy+1,cx-1,cy-1,modifications) &&
-                    canMove(cx-1,cy,cx,cy-1,modifications)) {
+            if (canMove(gb,cx-1,cy-1,cx+1,cy-1,modifications) &&
+                    canMove(gb,cx,cy-1,cx+1,cy,modifications) &&
+                    canMove(gb,cx+1,cy-1,cx+1,cy+1,modifications) &&
+                    canMove(gb,cx+1,cy,cx,cy+1,modifications) &&
+                    canMove(gb,cx+1,cy+1,cx-1,cy+1,modifications) &&
+                    canMove(gb,cx,cy+1,cx-1,cy,modifications) &&
+                    canMove(gb,cx-1,cy+1,cx-1,cy-1,modifications) &&
+                    canMove(gb,cx-1,cy,cx,cy-1,modifications)) {
                 std::for_each(modifications.begin(),modifications.end(), [](Modification &m) {m.blockp->x_ = m.nx; m.blockp->y_ = m.ny; });
             }
-            markAll();
+            markAll(gb);
             return;
         }
-        virtual void rotateCounterClockwise() {
+        virtual void rotateCounterClockwise(GameBoard & gb) {
             const blist::iterator centerItr = getCenter();
             int cx = centerItr->x_;
             int cy = centerItr->y_;
-            unmarkAll();
+            unmarkAll(gb);
             std::vector<Modification> modifications;
-            if (canRMove(cx-1,cy-1,cx+1,cy-1,modifications) &&
-                    canRMove(cx,cy-1,cx+1,cy,modifications) &&
-                    canRMove(cx+1,cy-1,cx+1,cy+1,modifications) &&
-                    canRMove(cx+1,cy,cx,cy+1,modifications) &&
-                    canRMove(cx+1,cy+1,cx-1,cy+1,modifications) &&
-                    canRMove(cx,cy+1,cx-1,cy,modifications) &&
-                    canRMove(cx-1,cy+1,cx-1,cy-1,modifications) &&
-                    canRMove(cx-1,cy,cx,cy-1,modifications)) {
+            if (canRMove(gb,cx-1,cy-1,cx+1,cy-1,modifications) &&
+                    canRMove(gb,cx,cy-1,cx+1,cy,modifications) &&
+                    canRMove(gb,cx+1,cy-1,cx+1,cy+1,modifications) &&
+                    canRMove(gb,cx+1,cy,cx,cy+1,modifications) &&
+                    canRMove(gb,cx+1,cy+1,cx-1,cy+1,modifications) &&
+                    canRMove(gb,cx,cy+1,cx-1,cy,modifications) &&
+                    canRMove(gb,cx-1,cy+1,cx-1,cy-1,modifications) &&
+                    canRMove(gb,cx-1,cy,cx,cy-1,modifications)) {
                 std::for_each(modifications.begin(),modifications.end(), [](Modification &m) {m.blockp->x_ = m.nx; m.blockp->y_ = m.ny; });
             }
-            markAll();
+            markAll(gb);
             return;
         }
 
@@ -115,16 +114,16 @@ class Piece {
             int nx;
             int ny;
         };
-        bool canRMove(int ix,int iy, int dx, int dy,std::vector<Modification> &mods) {
-            return canMove(dx,dy, ix,iy, mods);
+        bool canRMove(GameBoard & gb, int ix,int iy, int dx, int dy,std::vector<Modification> &mods) {
+            return canMove(gb,dx,dy, ix,iy, mods);
         }
-        bool canMove(int ix,int iy, int dx, int dy,std::vector<Modification> &mods) {
+        bool canMove(GameBoard & gb, int ix,int iy, int dx, int dy,std::vector<Modification> &mods) {
             blist::iterator eitr = litr_;
             eitr++;
             blist::iterator foundItr =std::find_if(sitr_, eitr, [&ix,&iy](Block &b)->bool {return b.x_ == ix && b.y_ == iy;})  ;
             if (eitr == foundItr)
                 return true;
-            if (CLEAR_BLOCK == board[dx][dy]) {
+            if (gb.isClear(dx,dy)) {
                 Modification m;
                 m.blockp = &*foundItr;
                 m.nx = dx;

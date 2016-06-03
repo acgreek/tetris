@@ -25,24 +25,24 @@ class Block : public Movable, public Vectorable {
         int setZ(__attribute__((unused))int z){
             return 0;
         }
-        void set(int x, int y) {
-            unmark();
+        void set(GameBoard & gb, int x, int y) {
+            unmark(gb);
             x_ = x;
             y_ = y;
-            mark();
+            mark(gb);
         }
         void draw(WINDOW * win, const char *symbol="o",  int drawoffsetx =0,int  drawoffsety= 0 ) {
             if (x_ >=0)
                 mvwprintw(win, y_ + drawoffsety, x_+drawoffsetx, symbol);
         }
-        void unmark() {
-            board[x_][y_] = CLEAR_BLOCK;
+        void unmark(GameBoard & gb) {
+            gb.clear(x_,y_);
         }
-        void mark() {
-            board[x_][y_] = 'o';
+        void mark(GameBoard & gb) {
+            gb.set(x_,y_,'o');
         }
-        bool canmove() {
-            if (y_ == max_y-1 || board[dx_ + x_][y_ + dy_] != CLEAR_BLOCK){
+        bool canmove(GameBoard & gb) {
+            if (y_ == gb.maxy()-1 || !gb.isClear(dx_ + x_,y_ + dy_)){
                 return false;
             }
             return true;
@@ -51,44 +51,44 @@ class Block : public Movable, public Vectorable {
             x_ += dx_;
             y_ += dy_;
         }
-        void move(){
-            unmark();
-            if (canmove()) {
+        void move(GameBoard & gb){
+            unmark(gb);
+            if (canmove(gb)) {
                 uncheckedMove();
             }else   {
                 stopMoving();
             }
-           mark();
+           mark(gb);
         }
-        bool canMoveLeft() {
-            return (!done_moving() && x_ > 0 && board[x_-1][y_] == CLEAR_BLOCK);
+        bool canMoveLeft(GameBoard & gb) {
+            return (!done_moving() && x_ > 0 && gb.isClear(x_-1,y_));
         }
         void stopMoving() {
             dx_= dy_ = 0;
         }
-        void uncheckedMoveLeft() {
-            board[x_][y_]= CLEAR_BLOCK;
+        void uncheckedMoveLeft(GameBoard & gb) {
+            unmark(gb);
             x_--;
-            board[x_][y_]='o';
+            mark(gb);
         }
-        bool left() {
-            if (canMoveLeft()) {
-                uncheckedMoveLeft();
+        bool left(GameBoard & gb) {
+            if (canMoveLeft(gb)) {
+                uncheckedMoveLeft(gb);
                 return true;
             };
             return false;
         }
-        bool canMoveRight() {
-            return (!done_moving() && x_ < max_x&& board[x_+1][y_] == CLEAR_BLOCK);
+        bool canMoveRight(GameBoard & gb) {
+            return (!done_moving() && x_ < gb.maxx()&& gb.isClear(x_+1,y_));
         }
-        void uncheckedMoveRight() {
-            board[x_][y_]=CLEAR_BLOCK;
+        void uncheckedMoveRight(GameBoard & gb) {
+            unmark(gb);
             x_++;
-            board[x_][y_]='o';
+            mark(gb);
         }
-        bool right() {
-            if (canMoveRight()) {
-                uncheckedMoveRight();
+        bool right(GameBoard & gb) {
+            if (canMoveRight(gb)) {
+                uncheckedMoveRight(gb);
                 return true;
             };
             return false;

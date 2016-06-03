@@ -9,9 +9,6 @@
 #include "keyboard.h"
 #include "gameboard.h"
 
-static char board[MAXBOARDW][MAXBOARDH];
-static int max_y = 0, max_x = 0;
-
 int delay = 3000;
 
 #include "movable.hpp"
@@ -26,25 +23,25 @@ typedef std::list<Block> blist;
 
 #define TETRIS_DEFAULT_WIDTH 9
 
-static void shiftRowsDown(blist & blocks, int row) {
-    std::for_each(blocks.begin(), blocks.end(), [&row ](Block & b) {if (b.y_ == row ){  b.unmark();};});
+static void shiftRowsDown(GameBoard & gb,blist & blocks, int row) {
+    std::for_each(blocks.begin(), blocks.end(), [&row, &gb ](Block & b) {if (b.y_ == row ){  b.unmark(gb);};});
     blocks.erase(std::remove_if(blocks.begin(), blocks.end(), [&row](Block & b)->bool { return b.y_ == row;}), blocks.end()  );
-    std::for_each(blocks.begin(), blocks.end(), [&row ](Block & b) {if (b.y_ < row ){ b.unmark(); b.y_++; b.mark();};});
-    std::for_each(blocks.begin(), blocks.end(), [&row ](Block & b) {b.mark();});
+    std::for_each(blocks.begin(), blocks.end(), [&row, &gb ](Block & b) {if (b.y_ < row ){ b.unmark(gb); b.y_++; b.mark(gb);};});
+    std::for_each(blocks.begin(), blocks.end(), [&row, &gb ](Block & b) {b.mark(gb);});
 }
 #define MIN(A,B) (A >B ? B :A)
-static int checkCompleteRows(blist & blocks) {
+static int checkCompleteRows(GameBoard & gb, blist & blocks) {
     int rowsRemoved=0;
-    int i=max_y;
+    int i=gb.maxy();
     while (i > 0) {
         int j=0;
-        for (; j<= max_x;j++) {
-            if (board[j][i]==CLEAR_BLOCK)
+        for (; j<= gb.maxx();j++) {
+            if (gb.isClear(j,i))
                 break;
         }
-        if (max_x +1 ==j) {
+        if (gb.maxx() +1 ==j) {
              rowsRemoved++;
-             shiftRowsDown(blocks, i);
+             shiftRowsDown(gb,blocks, i);
         } else {
             i--;
         }
@@ -86,7 +83,6 @@ class TetrisGame {
         TetrisGame() {}
         void play() {
             curs_set(FALSE);
-            memset(board, CLEAR_BLOCK, sizeof(board[0][0]) * MAXBOARDW* MAXBOARDH);
             CursesSetup cursesSetup;
 
             int real_max_x, real_max_y;
@@ -94,8 +90,8 @@ class TetrisGame {
             int centerX = real_max_x/2;
             int offsetCenterX = centerX + TETRIS_DEFAULT_WIDTH/2 -10;
 
-            max_x = MIN(real_max_x,TETRIS_DEFAULT_WIDTH);
-            max_y = real_max_y;
+            int max_x = MIN(real_max_x,TETRIS_DEFAULT_WIDTH);
+            int max_y = real_max_y;
             Window board_win(create_newwin(max_y-4,12,0, offsetCenterX-1));
             Window score_win(create_newwin(3, 12, max_y-4, offsetCenterX-1));
             Window next_piece_win(create_newwin(5, 6, 2, offsetCenterX + 11));
@@ -112,7 +108,7 @@ class TetrisGame {
             while(!done) {
                 bool needRedraw =false;
                 if (currentCount % moveDownCount == 0 ) {
-                    curPiecep->move();
+                    curPiecep->move(tetrisGameBoard);
                     needRedraw = true;
                 }
                 currentCount++;
@@ -121,11 +117,11 @@ class TetrisGame {
                     needRedraw = true;
                     switch (c){
                         case 'q': done=true;break;
-                        case 'a': curPiecep->left();break;
-                        case 'd': curPiecep->right();break;
-                        case 'z': curPiecep->rotateCounterClockwise();break;
-                        case 'c': curPiecep->rotateClockwise();break;
-                        case 's': curPiecep->move();break;
+                        case 'a': curPiecep->left(tetrisGameBoard);break;
+                        case 'd': curPiecep->right(tetrisGameBoard);break;
+                        case 'z': curPiecep->rotateCounterClockwise(tetrisGameBoard);break;
+                        case 'c': curPiecep->rotateClockwise(tetrisGameBoard);break;
+                        case 's': curPiecep->move(tetrisGameBoard);break;
                     }
                 }
                 usleep(delay);
@@ -133,7 +129,7 @@ class TetrisGame {
                     clear();
                     wclear(board_win.get());
                     if (curPiecep->done_moving()) {
-                        switch (checkCompleteRows(blocks_)) {
+                        switch (checkCompleteRows(tetrisGameBoard, blocks_)) {
                             case 4: score_ +=100; break;
                             case 3: score_ +=50; break;
                             case 2: score_ +=25; break;
@@ -146,7 +142,7 @@ class TetrisGame {
                         curPiecep = std::move(nextPiecep);
                         nextPiecep.reset( pieceSelector.getNextPiece(nextblocks_));
                         std::for_each(nextblocks_.begin(), nextblocks_.end(), [&](Block & b) {b.draw(next_piece_win.get(), "o", 1, 1);});
-                        curPiecep->markAll();
+                        curPiecep->markAll(tetrisGameBoard);
                     }
                     std::for_each(blocks_.begin(), blocks_.end(), [&](Block & b) {b.draw(board_win.get(),"o",1,1);});
                     box(board_win.get(), 0 , 0);
