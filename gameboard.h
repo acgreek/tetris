@@ -7,8 +7,6 @@
 #define MAXBOARDW 1000
 
 #define CLEAR_BLOCK ' '
-static char board[MAXBOARDW][MAXBOARDH];
-static int max_y = 0, max_x = 0;
 
 class GameBoard {
     public:
