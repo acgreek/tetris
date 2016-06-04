@@ -67,34 +67,70 @@ class CursesSetup {
         ~CursesSetup (){
             endwin();
         }
-
 };
 
 class Window {
     public:
-        Window(WINDOW *w) : w_(w,delwin) {}
+        Window() {}
         WINDOW * get() { return w_.get(); }
+        void set(WINDOW *w)   {
+            w_.reset(w,delwin) ;
+        }
+
+        void refresh() {
+            box(get(), 0 , 0);
+            wnoutrefresh(get());
+
+        }
     private:
         std::shared_ptr<WINDOW> w_;
+};
+class GameScreen {
+    public:
+        GameScreen():  cursesSetup() {
+            curs_set(FALSE);
+        }
+        ~GameScreen() {
+
+        }
+
+        void getMaxyx(int &y, int &x) {
+            getmaxyx(stdscr, y, x);
+        }
+        Window & getWindow(int height, int width, int yoffset, int xoffset){
+            windows.push_back(Window());
+            windows.back().set(create_newwin(height,width,yoffset,xoffset));
+            return windows.back();
+        }
+        void refreshMain() {
+            wnoutrefresh(stdscr);
+
+        };
+        void doupdate(){
+            ::doupdate();
+        }
+    private:
+        CursesSetup cursesSetup;
+        std::list<Window> windows;
+
 };
 
 class TetrisGame {
     public:
         TetrisGame() {}
         void play() {
-            curs_set(FALSE);
-            CursesSetup cursesSetup;
+            GameScreen gameScreen;
 
             int real_max_x, real_max_y;
-            getmaxyx(stdscr, real_max_y, real_max_x);
+            gameScreen.getMaxyx(real_max_y, real_max_x);
             int centerX = real_max_x/2;
             int offsetCenterX = centerX + TETRIS_DEFAULT_WIDTH/2 -10;
 
             int max_x = MIN(real_max_x,TETRIS_DEFAULT_WIDTH);
             int max_y = real_max_y;
-            Window board_win(create_newwin(max_y-4,12,0, offsetCenterX-1));
-            Window score_win(create_newwin(3, 12, max_y-4, offsetCenterX-1));
-            Window next_piece_win(create_newwin(5, 6, 2, offsetCenterX + 11));
+            Window & board_win = gameScreen.getWindow(max_y-4,12,0, offsetCenterX-1);
+            Window & score_win = gameScreen.getWindow(3, 12, max_y-4, offsetCenterX-1);
+            Window & next_piece_win = gameScreen.getWindow(5, 6, 2, offsetCenterX + 11);
             max_y = max_y-6;
             GameBoard tetrisGameBoard(max_x, max_y);
 
@@ -145,19 +181,16 @@ class TetrisGame {
                         curPiecep->markAll(tetrisGameBoard);
                     }
                     std::for_each(blocks_.begin(), blocks_.end(), [&](Block & b) {b.draw(board_win.get(),"o",1,1);});
-                    box(board_win.get(), 0 , 0);
-                    wnoutrefresh(stdscr);
-                    wnoutrefresh(board_win.get());
-                    box(score_win.get(), 0 , 0);
+                    gameScreen.refreshMain();
+                    board_win.refresh();
                     mvwprintw(score_win.get(), 1, 1, "score: %d",score_);
-                    wnoutrefresh(score_win.get());/* Show that box */
-                    box(next_piece_win.get(), 0 , 0);
-                    wnoutrefresh(next_piece_win.get());/* Show that box */
-                    doupdate();
+                    score_win.refresh();
+                    next_piece_win.refresh();
+
+                    gameScreen.doupdate();
                 }
             }
             std::cout << "final score:" <<  score_ << std::endl;
-
         }
     private:
         blist blocks_;
