@@ -31,10 +31,6 @@ class Block : public Movable, public Vectorable {
             y_ = y;
             mark(gb);
         }
-        void draw(WINDOW * win, const char *symbol="o",  int drawoffsetx =0,int  drawoffsety= 0 ) {
-            if (x_ >=0)
-                mvwprintw(win, y_ + drawoffsety, x_+drawoffsetx, symbol);
-        }
         void unmark(GameBoard & gb) {
             gb.clear(x_,y_);
         }
