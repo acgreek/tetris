@@ -34,7 +34,7 @@ static int checkCompleteRows(GameBoard & gb, blist & blocks) {
     return rowsRemoved;
 }
 static bool gameOver(std::shared_ptr<Piece> curPiecep) {
-    return false;
+    return curPiecep->findIf([](Block &b)->bool {return b.getY() == 0;});
 }
 
 #include "gamescreen.hpp"

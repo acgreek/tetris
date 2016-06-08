@@ -45,9 +45,7 @@ class Piece {
             return result;
         }
         bool done_moving() {
-            blist::iterator eitr = litr_;
-            eitr++;
-            return (eitr != std::find_if(sitr_, eitr, [](Block &b)->bool {return b.done_moving();}));
+            return findIf([](Block &b)->bool {return b.done_moving();});
         }
         void unmarkAll(GameBoard &gb) {
             forEachBlock(std::bind(&Block::unmark, std::placeholders::_1, std::ref(gb)));
@@ -59,6 +57,11 @@ class Piece {
             blist::iterator eitr = litr_;
             eitr++;
             std::for_each(sitr_, eitr, func);
+        }
+        bool findIf(std::function<bool(Block&)> func) {
+            blist::iterator eitr = litr_;
+            eitr++;
+            return eitr != std::find_if(sitr_, eitr, func);
         }
         virtual void rotateClockwise(GameBoard &gb) {
             const blist::iterator centerItr = getCenter();
