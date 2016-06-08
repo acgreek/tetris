@@ -33,6 +33,9 @@ static int checkCompleteRows(GameBoard & gb, blist & blocks) {
     }
     return rowsRemoved;
 }
+static bool gameOver(std::shared_ptr<Piece> curPiecep) {
+    return false;
+}
 
 #include "gamescreen.hpp"
 
@@ -96,6 +99,8 @@ class TetrisGame {
                             default:
                             case 0: score_ +=1; break;
                         }
+                        if (gameOver(curPiecep))
+                            done = true;
                         std::for_each(nextblocks_.begin(), nextblocks_.end(), [&](Block & b) {next_piece_win.draw (b," ", 1,1  );});
                         blocks_.splice(blocks_.begin(), nextblocks_);
                         curPiecep = std::move(nextPiecep);
