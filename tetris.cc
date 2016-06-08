@@ -15,9 +15,6 @@ int delay = 3000;
 
 typedef std::list<Block> blist;
 
-#include "piece.hpp"
-#include "logpiece.hpp"
-#include "pieces.hpp"
 #include "piece_selector.hpp"
 
 #define TETRIS_DEFAULT_WIDTH 9
@@ -47,118 +44,24 @@ static int checkCompleteRows(GameBoard & gb, blist & blocks) {
     }
     return rowsRemoved;
 }
-class Window_interface  {
-    public:
-        Window_interface() {}
-        virtual ~Window_interface() {}
-        virtual void refresh() =0;
-        virtual void draw(Block & b,const char *symbol = "o", int drawoffsetx=0 , int drawoffsety=0) =0;
-        virtual void clear(void)  =0;
-        virtual void text(int x, int y, const char * fmt, ...)  =0;
-};
-namespace NCurses {
-#include <ncurses.h>
-WINDOW *create_newwin(int height, int width, int starty, int startx) {
-    auto *local_win = newwin(height, width, starty, startx);
-    box(local_win, 0 , 0);/* 0, 0 gives default characters
-                           * for the vertical and horizontal
-                           *                   * lines*/
-    wrefresh(local_win);/* Show that box */
-    return local_win;
-}
 
-class CursesSetup {
-    public:
-        CursesSetup() {
-            initscr();
-            noecho();
-
-        }
-        ~CursesSetup (){
-            endwin();
-        }
-};
-
-class Window : public Window_interface {
-    public:
-        Window() {}
-        void set(WINDOW *w)   {
-            w_.reset(w,delwin) ;
-        }
-
-        void refresh() {
-            box(get(), 0 , 0);
-            wnoutrefresh(get());
-
-        }
-        void draw(Block & b,const char *symbol = "o", int drawoffsetx=0 , int drawoffsety=0) {
-            if (b.getX() >=0)
-                mvwprintw(get(), b.getY() + drawoffsety, b.getX()+drawoffsetx, symbol);
-        }
-        void clear(void) {
-            NCurses::wclear(w_.get());
-        }
-        void text(int x, int y, const char * fmt, ...) {
-            va_list argp;
-            va_start(argp, fmt);
-            wmove(w_.get(),y, x);
-            vw_printw(w_.get(), fmt,argp);
-            va_end(argp);
-        }
-    private:
-        WINDOW * get() { return w_.get(); }
-        std::shared_ptr<WINDOW> w_;
-};
-class GameScreen {
-    public:
-        GameScreen():  cursesSetup() {
-            curs_set(FALSE);
-        }
-        ~GameScreen() {
-
-        }
-        void clear(void) const {
-            NCurses::clear();
-        }
-        void getMaxyx(int &y, int &x) {
-            getmaxyx(stdscr, y, x);
-        }
-        Window & getWindow(int height, int width, int yoffset, int xoffset){
-            windows.push_back(Window());
-            windows.back().set(create_newwin(height,width,yoffset,xoffset));
-            return windows.back();
-        }
-        void refreshMain() {
-            wnoutrefresh(stdscr);
-
-        };
-        void doupdate(){
-            NCurses::doupdate();
-        }
-    private:
-        CursesSetup cursesSetup;
-        std::list<Window> windows;
-
-};
-
-}// namespace
+#include "gamescreen.hpp"
 
 class TetrisGame {
     public:
-        TetrisGame() {}
-        void play() {
-            NCurses::GameScreen gameScreen;
+        TetrisGame(GameScreen_interface &gameScreen) : gameScreen_(gameScreen) {}
 
+        void play() {
             int real_max_x, real_max_y;
-            gameScreen.getMaxyx(real_max_y, real_max_x);
+            gameScreen_.getMaxyx(real_max_y, real_max_x);
             int centerX = real_max_x/2;
             int offsetCenterX = centerX + TETRIS_DEFAULT_WIDTH/2 -10;
 
             int max_x = MIN(real_max_x,TETRIS_DEFAULT_WIDTH);
             int max_y = real_max_y;
-            Window_interface & board_win = gameScreen.getWindow(max_y-4,12,0, offsetCenterX-1);
-            Window_interface & score_win = gameScreen.getWindow(3, 12, max_y-4, offsetCenterX-1);
-            Window_interface & next_piece_win = gameScreen.getWindow(5, 6, 2, offsetCenterX + 11);
+            Window_interface & board_win = gameScreen_.getWindow(max_y-4,12,0, offsetCenterX-1);
+            Window_interface & score_win = gameScreen_.getWindow(3, 12, max_y-4, offsetCenterX-1);
+            Window_interface & next_piece_win = gameScreen_.getWindow(5, 6, 2, offsetCenterX + 11);
             max_y = max_y-6;
             GameBoard tetrisGameBoard(max_x, max_y);
 
@@ -190,7 +93,7 @@ class TetrisGame {
                 }
                 usleep(delay);
                 if (needRedraw) {
-                    gameScreen.clear();
+                    gameScreen_.clear();
                     board_win.clear();
                     if (curPiecep->done_moving()) {
                         switch (checkCompleteRows(tetrisGameBoard, blocks_)) {
@@ -209,27 +112,31 @@ class TetrisGame {
                         curPiecep->markAll(tetrisGameBoard);
                     }
                     std::for_each(blocks_.begin(), blocks_.end(), [&](Block & b) {board_win.draw(b,"o",1,1);});
-                    gameScreen.refreshMain();
+                    gameScreen_.refreshMain();
                     board_win.refresh();
                     score_win.text(1, 1, "score: %d",score_);
                     score_win.refresh();
                     next_piece_win.refresh();
 
-                    gameScreen.doupdate();
+                    gameScreen_.doupdate();
                 }
             }
             std::cout << "final score:" <<  score_ << std::endl;
         }
     private:
+        GameScreen_interface &gameScreen_;
         blist blocks_;
         blist nextblocks_;
         int score_ = 0;
 };
 
+#include "ncurses_game_screen.hpp"
 int main() {
     /* initialize random seed: */
     srand (time(NULL));
-    TetrisGame tetris;
+
+    NCurses::GameScreen gameScreen;
+    TetrisGame tetris(gameScreen);
     tetris.play();
 };
 

@@ -1,4 +1,9 @@
+#ifndef PIECE_SELECTOR_HPP
+#define PIECE_SELECTOR_HPP
 
+#include "piece.hpp"
+#include "logpiece.hpp"
+#include "pieces.hpp"
 class PieceSelector {
     public:
         PieceSelector(): currentPiece_(SQUARE) {}
@@ -46,4 +51,4 @@ class PieceSelector {
         El el_;
         LEl lel_;
 };
-
+#endif
