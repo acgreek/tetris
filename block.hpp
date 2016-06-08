@@ -1,6 +1,9 @@
 #ifndef BLOCK_HPP
 #define BLOCK_HPP
 
+#include <list>
+
+#include "movable.hpp"
 #include "vectorable.hpp"
 
 class Block : public Movable, public Vectorable {
@@ -98,5 +101,7 @@ class Block : public Movable, public Vectorable {
         int dx_;
         int dy_;
 };
+
+typedef std::list<Block> blist;
 
 #endif

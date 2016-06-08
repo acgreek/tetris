@@ -1,20 +1,16 @@
 #include <unistd.h>
-#include <list>
 #include <algorithm>
 #include <string.h>
 #include <math.h>
 #include <iostream>
 #include <memory>
+
 #include "keyboard.h"
 #include "gameboard.h"
 
 int delay = 3000;
 
-#include "movable.hpp"
 #include "block.hpp"
-
-typedef std::list<Block> blist;
-
 #include "piece_selector.hpp"
 
 #define TETRIS_DEFAULT_WIDTH 9
@@ -79,8 +75,9 @@ class TetrisGame {
                     needRedraw = true;
                 }
                 currentCount++;
-                if (kbhit()) {
-                    char c = lgetch();
+
+                if (gameScreen_.kbhit()) {
+                    char c = gameScreen_.lgetch();
                     needRedraw = true;
                     switch (c){
                         case 'q': done=true;break;

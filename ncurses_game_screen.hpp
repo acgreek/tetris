@@ -1,6 +1,8 @@
 #include "gamescreen.hpp"
 namespace NCurses {
 #include <ncurses.h>
+#include "keyboard.h"
+
 WINDOW *create_newwin(int height, int width, int starty, int startx) {
     auto *local_win = newwin(height, width, starty, startx);
     box(local_win, 0 , 0);/* 0, 0 gives default characters
@@ -77,6 +79,13 @@ class GameScreen :public GameScreen_interface{
         };
         virtual void doupdate(){
             NCurses::doupdate();
+        }
+        virtual bool kbhit() {
+            return NCurses::kbhit();
+        }
+        virtual char lgetch() {
+
+            return NCurses::lgetch();
         }
     private:
         CursesSetup cursesSetup;

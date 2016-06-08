@@ -20,5 +20,7 @@ class GameScreen_interface {
         virtual void refreshMain()  =0;
         virtual void doupdate() =0;
         virtual void clear(void) const  =0;
+        virtual bool kbhit() = 0;
+        virtual char lgetch() = 0;
 };
 #endif
