@@ -22,5 +22,6 @@ class GameScreen_interface {
         virtual void clear(void) const  =0;
         virtual bool kbhit() = 0;
         virtual char lgetch() = 0;
+        virtual int getDelay() = 0;
 };
 #endif

@@ -1,19 +1,11 @@
 #include <unistd.h>
-#include <algorithm>
-#include <string.h>
-#include <math.h>
 #include <iostream>
+#include <algorithm>
 #include <memory>
 
-#include "keyboard.h"
 #include "gameboard.h"
-
-int delay = 3000;
-
 #include "block.hpp"
 #include "piece_selector.hpp"
-
-#define TETRIS_DEFAULT_WIDTH 9
 
 static void shiftRowsDown(GameBoard & gb,blist & blocks, int row) {
     std::for_each(blocks.begin(), blocks.end(), [&row, &gb ](Block & b) {if (b.y_ == row ){  b.unmark(gb);};});
@@ -21,7 +13,8 @@ static void shiftRowsDown(GameBoard & gb,blist & blocks, int row) {
     std::for_each(blocks.begin(), blocks.end(), [&row, &gb ](Block & b) {if (b.y_ < row ){ b.unmark(gb); b.y_++; b.mark(gb);};});
     std::for_each(blocks.begin(), blocks.end(), [&row, &gb ](Block & b) {b.mark(gb);});
 }
-#define MIN(A,B) (A >B ? B :A)
+
+
 static int checkCompleteRows(GameBoard & gb, blist & blocks) {
     int rowsRemoved=0;
     int i=gb.maxy();
@@ -43,9 +36,11 @@ static int checkCompleteRows(GameBoard & gb, blist & blocks) {
 
 #include "gamescreen.hpp"
 
+#define MIN(A,B) (A >B ? B :A)
+
 class TetrisGame {
     public:
-        TetrisGame(GameScreen_interface &gameScreen) : gameScreen_(gameScreen) {}
+        TetrisGame(GameScreen_interface &gameScreen) : gameScreen_(gameScreen), delay_(gameScreen.getDelay()) {}
 
         void play() {
             int real_max_x, real_max_y;
@@ -88,7 +83,7 @@ class TetrisGame {
                         case 's': curPiecep->move(tetrisGameBoard);break;
                     }
                 }
-                usleep(delay);
+                usleep(delay_);
                 if (needRedraw) {
                     gameScreen_.clear();
                     board_win.clear();
@@ -122,6 +117,7 @@ class TetrisGame {
         }
     private:
         GameScreen_interface &gameScreen_;
+        int delay_;
         blist blocks_;
         blist nextblocks_;
         int score_ = 0;
@@ -131,7 +127,6 @@ class TetrisGame {
 int main() {
     /* initialize random seed: */
     srand (time(NULL));
-
     NCurses::GameScreen gameScreen;
     TetrisGame tetris(gameScreen);
     tetris.play();

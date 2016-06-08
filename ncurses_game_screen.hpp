@@ -87,6 +87,9 @@ class GameScreen :public GameScreen_interface{
 
             return NCurses::lgetch();
         }
+        virtual int getDelay() {
+           return 3000;
+        };
     private:
         CursesSetup cursesSetup;
         std::list<Window> windows;

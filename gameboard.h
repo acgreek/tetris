@@ -6,7 +6,10 @@
 #define MAXBOARDH 1000
 #define MAXBOARDW 1000
 
+#define TETRIS_DEFAULT_WIDTH 9
+
 #define CLEAR_BLOCK ' '
+#include <string.h>
 
 class GameBoard {
     public:
