@@ -1,5 +1,4 @@
 #include <unistd.h>
-#include <iostream>
 #include <algorithm>
 #include <memory>
 
@@ -13,7 +12,6 @@ static void shiftRowsDown(GameBoard & gb,blist & blocks, int row) {
     std::for_each(blocks.begin(), blocks.end(), [&row, &gb ](Block & b) {if (b.y_ < row ){ b.unmark(gb); b.y_++; b.mark(gb);};});
     std::for_each(blocks.begin(), blocks.end(), [&row, &gb ](Block & b) {b.mark(gb);});
 }
-
 
 static int checkCompleteRows(GameBoard & gb, blist & blocks) {
     int rowsRemoved=0;
@@ -50,7 +48,6 @@ class TetrisGame {
             gameScreen_.getMaxyx(real_max_y, real_max_x);
             int centerX = real_max_x/2;
             int offsetCenterX = centerX + TETRIS_DEFAULT_WIDTH/2 -10;
-
             int max_x = MIN(real_max_x,TETRIS_DEFAULT_WIDTH);
             int max_y = real_max_y;
             Window_interface & board_win = gameScreen_.getWindow(max_y-4,12,0, offsetCenterX-1);
@@ -58,12 +55,15 @@ class TetrisGame {
             Window_interface & next_piece_win = gameScreen_.getWindow(5, 6, 2, offsetCenterX + 11);
             max_y = max_y-6;
             GameBoard tetrisGameBoard(max_x, max_y);
-
             bool done= false;
             int moveDownCount = 100;
             int currentCount = 1;
             PieceSelector  pieceSelector;
             std::shared_ptr<Piece> curPiecep(pieceSelector.getNextPiece(blocks_));
+            int moveRight = rand() %8;
+            for (int i = 0; i < moveRight; i++) {
+                curPiecep->right(tetrisGameBoard);
+            }
             std::shared_ptr<Piece> nextPiecep(pieceSelector.getNextPiece(nextblocks_));
             std::for_each(nextblocks_.begin(), nextblocks_.end(), [&](Block & b) {next_piece_win.draw(b, "o", 1, 1);});
             while(!done) {
@@ -73,7 +73,6 @@ class TetrisGame {
                     needRedraw = true;
                 }
                 currentCount++;
-
                 if (gameScreen_.kbhit()) {
                     char c = gameScreen_.lgetch();
                     needRedraw = true;
@@ -101,6 +100,10 @@ class TetrisGame {
                         }
                         if (gameOver(curPiecep))
                             done = true;
+                        int moveRight = rand() %8;
+                        for (int i = 0; i < moveRight; i++) {
+                            nextPiecep->right(tetrisGameBoard);
+                        }
                         std::for_each(nextblocks_.begin(), nextblocks_.end(), [&](Block & b) {next_piece_win.draw (b," ", 1,1  );});
                         blocks_.splice(blocks_.begin(), nextblocks_);
                         curPiecep = std::move(nextPiecep);
@@ -114,11 +117,12 @@ class TetrisGame {
                     score_win.text(1, 1, "score: %d",score_);
                     score_win.refresh();
                     next_piece_win.refresh();
-
                     gameScreen_.doupdate();
                 }
             }
-            std::cout << "final score:" <<  score_ << std::endl;
+        }
+        int getScore() {
+            return score_;
         }
     private:
         GameScreen_interface &gameScreen_;
@@ -129,11 +133,15 @@ class TetrisGame {
 };
 
 #include "ncurses_game_screen.hpp"
+#include <iostream>
+
 int main() {
     /* initialize random seed: */
     srand (time(NULL));
     NCurses::GameScreen gameScreen;
     TetrisGame tetris(gameScreen);
     tetris.play();
+
+    std::cout << "final score:" <<  tetris.getScore() << std::endl;
 };
 
