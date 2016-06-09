@@ -65,7 +65,7 @@ class TetrisGame {
                 curPiecep->right(tetrisGameBoard);
             }
             std::shared_ptr<Piece> nextPiecep(pieceSelector.getNextPiece(nextblocks_));
-            std::for_each(nextblocks_.begin(), nextblocks_.end(), [&](Block & b) {next_piece_win.draw(b, "o", 1, 1);});
+            std::for_each(nextblocks_.begin(), nextblocks_.end(), [&](Block & b) {next_piece_win.draw(b, 1, 1);});
             while(!done) {
                 bool needRedraw =false;
                 if (currentCount % moveDownCount == 0 ) {
@@ -110,14 +110,14 @@ class TetrisGame {
                         for (int i = 0; i < moveRight; i++) {
                             nextPiecep->right(tetrisGameBoard);
                         }
-                        std::for_each(nextblocks_.begin(), nextblocks_.end(), [&](Block & b) {next_piece_win.draw (b," ", 1,1  );});
+                        next_piece_win.clear();
                         blocks_.splice(blocks_.begin(), nextblocks_);
                         curPiecep = std::move(nextPiecep);
                         nextPiecep.reset( pieceSelector.getNextPiece(nextblocks_));
-                        std::for_each(nextblocks_.begin(), nextblocks_.end(), [&](Block & b) {next_piece_win.draw(b, "o", 1, 1);});
+                        std::for_each(nextblocks_.begin(), nextblocks_.end(), [&](Block & b) {next_piece_win.draw(b, 1, 1);});
                         curPiecep->markAll(tetrisGameBoard);
                     }
-                    std::for_each(blocks_.begin(), blocks_.end(), [&](Block & b) {board_win.draw(b,"o",1,1);});
+                    std::for_each(blocks_.begin(), blocks_.end(), [&](Block & b) {board_win.draw(b,1,1);});
                     gameScreen_.refreshMain();
                     board_win.refresh();
                     score_win.text(1, 1, "score: %d",score_);

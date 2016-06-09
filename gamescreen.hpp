@@ -5,7 +5,8 @@ class Window_interface  {
     public:
         Window_interface() {}
         virtual ~Window_interface() {}
-        virtual void draw(Block & b,const char *symbol = "o", int drawoffsetx=0 , int drawoffsety=0) =0;
+        virtual void draw(Block & b, int drawoffsetx=0 , int drawoffsety=0) =0;
+        virtual void erase(Block & b, int drawoffsetx=0 , int drawoffsety=0) =0;
         virtual void text(int x, int y, const char * fmt, ...)  =0;
         virtual void refresh() =0;
         virtual void clear(void)  =0;

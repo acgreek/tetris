@@ -8,6 +8,15 @@ class PieceSelector {
     public:
         PieceSelector(): currentPiece_(SQUARE) {}
         Piece * getNextPiece(blist & blocks) {
+            Piece * piece = getNextPieceNoColor(blocks);
+            int cnum =rand() % (Block::getMaxColorNum()+1);
+            Block::color_t color = Block::getEnumByNum(cnum);
+
+            piece->forEachBlock([color](Block & b) {b.setColor(color);});
+            return piece;
+        }
+    private:
+        Piece * getNextPieceNoColor(blist & blocks) {
             piece_type nextPiece = ( piece_type) (rand() % (LEL + 1));
             switch(currentPiece_) {
                 case ZED:
@@ -41,7 +50,6 @@ class PieceSelector {
                     return new SquarePiece(square_);
             }
         }
-    private:
         enum piece_type {ZED, LZED, LOG, SQUARE, PYRAMID, EL, LEL} currentPiece_ ;
         ZPiece z_;
         LZPiece lz_;

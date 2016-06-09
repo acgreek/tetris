@@ -8,8 +8,23 @@
 
 class Block : public Movable, public Vectorable {
     public:
-        Block() :x_(0), y_(0){dy_ = 1;dx_ = 0;}
-        Block(int x, int y) :x_(x), y_(y){dy_ = 1;dx_ =0;}
+
+        typedef enum {RED, BLUE, ORANGE, GREEN, PURPLE} color_t;
+
+        static int getMaxColorNum() {
+            return 4;
+        }
+        static color_t getEnumByNum(int n) {
+            return (color_t)(n%5);
+        }
+
+        Block() :x_(0), y_(0), color_(RED){dy_ = 1;dx_ = 0;}
+        Block(int x, int y, color_t color=RED ) :x_(x), y_(y), color_(color){dy_ = 1;dx_ =0;}
+
+        void setColor(color_t c) {color_ =c ;}
+        color_t getColor() {return color_;}
+
+
         int getX() const {
             return x_;
         }
@@ -100,6 +115,7 @@ class Block : public Movable, public Vectorable {
     private:
         int dx_;
         int dy_;
+        color_t color_;
 };
 
 typedef std::list<Block> blist;

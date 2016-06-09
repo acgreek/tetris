@@ -36,9 +36,16 @@ class Window : public Window_interface {
             wnoutrefresh(get());
 
         }
-        void draw(Block & b,const char *symbol = "o", int drawoffsetx=0 , int drawoffsety=0) {
+        void draw(Block & b, int drawoffsetx=0 , int drawoffsety=0) {
+            char str[2] = "A";
+            str[0] = 'A' + b.getColor();
             if (b.getX() >=0)
-                mvwprintw(get(), b.getY() + drawoffsety, b.getX()+drawoffsetx, symbol);
+                mvwprintw(get(), b.getY() + drawoffsety, b.getX()+drawoffsetx, str);
+        }
+        virtual void erase(Block & b, int drawoffsetx=0 , int drawoffsety=0) {
+            if (b.getX() >=0)
+                mvwprintw(get(), b.getY() + drawoffsety, b.getX()+drawoffsetx, " ");
+
         }
         void clear(void) {
             NCurses::wclear(w_.get());
