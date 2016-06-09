@@ -83,6 +83,12 @@ class TetrisGame {
                         case 'z': curPiecep->rotateCounterClockwise(tetrisGameBoard);break;
                         case 'c': curPiecep->rotateClockwise(tetrisGameBoard);break;
                         case 's': curPiecep->move(tetrisGameBoard);break;
+                        case ' ':
+                                  while (!curPiecep->done_moving()) {
+                                      curPiecep->move(tetrisGameBoard);
+                                  }
+                                  needRedraw = true;
+                                  break;
                     }
                 }
                 usleep(delay_);
