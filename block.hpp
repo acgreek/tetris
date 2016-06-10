@@ -9,13 +9,13 @@
 class Block : public Movable, public Vectorable {
     public:
 
-        typedef enum {RED, BLUE, ORANGE, GREEN, PURPLE} color_t;
+        typedef enum {RED, BLUE, GREEN,WHITE} color_t;
 
         static int getMaxColorNum() {
             return 4;
         }
         static color_t getEnumByNum(int n) {
-            return (color_t)(n%5);
+            return (color_t)(n%4);
         }
 
         Block() :x_(0), y_(0), color_(RED){dy_ = 1;dx_ = 0;}

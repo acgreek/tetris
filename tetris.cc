@@ -42,7 +42,6 @@ static bool gameOver(std::shared_ptr<Piece> curPiecep) {
 class TetrisGame {
     public:
         TetrisGame(GameScreen_interface &gameScreen) : gameScreen_(gameScreen), delay_(gameScreen.getDelay()) {}
-
         void play() {
             int real_max_x, real_max_y;
             gameScreen_.getMaxyx(real_max_y, real_max_x);
@@ -147,7 +146,6 @@ int main() {
     NCurses::GameScreen gameScreen;
     TetrisGame tetris(gameScreen);
     tetris.play();
-
     std::cout << "final score:" <<  tetris.getScore() << std::endl;
 };
 
