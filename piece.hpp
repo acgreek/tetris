@@ -10,14 +10,37 @@ class Piece {
             blist::iterator eitr = litr_;
             eitr++;
             std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
-            if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canmove(gb);})) {
-                std::for_each(sitr_, eitr, [](Block & b) {b.uncheckedMove();});
+            if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMove(gb);})) {
+                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMove();});
             }
             else {
                 sitr_->stopMoving();
-
             }
             std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
+        }
+        virtual bool down(GameBoard &gb) {
+            bool result = false;
+            blist::iterator eitr = litr_;
+            eitr++;
+            std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
+            if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMoveDown(gb);})) {
+                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveDown();});
+                result = true;
+            }
+            std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
+            return result;
+        }
+        virtual bool up(GameBoard &gb) {
+            bool result = false;
+            blist::iterator eitr = litr_;
+            eitr++;
+            std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
+            if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMoveUp(gb);})) {
+                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveUp();});
+                result= true;
+            }
+            std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
+            return result;
         }
         virtual bool left(GameBoard &gb) {
             bool result = false;
@@ -25,7 +48,7 @@ class Piece {
             eitr++;
             std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
             if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMoveLeft(gb);})) {
-                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveLeft(gb);});
+                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveLeft();});
                 result =true;
             }
             std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
@@ -38,7 +61,7 @@ class Piece {
             eitr++;
             std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
             if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMoveRight(gb);})) {
-                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveRight(gb);});
+                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveRight();});
                 result =true;
             }
             std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
