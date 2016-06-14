@@ -42,6 +42,27 @@ static bool gameOver(std::shared_ptr<Piece> curPiecep) {
 class TetrisGame {
     public:
         TetrisGame(GameScreen_interface &gameScreen) : gameScreen_(gameScreen), delay_(gameScreen.getDelay()) {}
+        bool handleKeyBoard(GameBoard & tetrisGameBoard, bool & done,std::shared_ptr<Piece>& curPiecep) {
+            if (!gameScreen_.kbhit()) {
+                return false;
+            }
+            char c = gameScreen_.lgetch();
+            switch (c){
+                case 'q': done=true;break;
+                case 'a': curPiecep->left(tetrisGameBoard);break;
+                case 'd': curPiecep->right(tetrisGameBoard);break;
+                case 'z': curPiecep->rotateCounterClockwise(tetrisGameBoard);break;
+                case 'c': curPiecep->rotateClockwise(tetrisGameBoard);break;
+                case 's': curPiecep->move(tetrisGameBoard);break;
+                case ' ':
+                          while (!curPiecep->done_moving()) {
+                              curPiecep->move(tetrisGameBoard);
+                          }
+                          break;
+            }
+            return true;
+
+        }
         void play() {
             int real_max_x, real_max_y;
             gameScreen_.getMaxyx(real_max_y, real_max_x);
@@ -72,24 +93,7 @@ class TetrisGame {
                     needRedraw = true;
                 }
                 currentCount++;
-                if (gameScreen_.kbhit()) {
-                    char c = gameScreen_.lgetch();
-                    needRedraw = true;
-                    switch (c){
-                        case 'q': done=true;break;
-                        case 'a': curPiecep->left(tetrisGameBoard);break;
-                        case 'd': curPiecep->right(tetrisGameBoard);break;
-                        case 'z': curPiecep->rotateCounterClockwise(tetrisGameBoard);break;
-                        case 'c': curPiecep->rotateClockwise(tetrisGameBoard);break;
-                        case 's': curPiecep->move(tetrisGameBoard);break;
-                        case ' ':
-                                  while (!curPiecep->done_moving()) {
-                                      curPiecep->move(tetrisGameBoard);
-                                  }
-                                  needRedraw = true;
-                                  break;
-                    }
-                }
+                needRedraw |= handleKeyBoard(tetrisGameBoard,done,curPiecep);
                 usleep(delay_);
                 if (needRedraw) {
                     gameScreen_.clear();
