@@ -15,6 +15,9 @@ class PieceSelector {
             piece->forEachBlock([&](Block & b) {b.setColor(color);b.setDxDy(dx_,dy_); b.setX(b.getX() + xoffset_); b.setY(b.getY() + yoffset_);});
             return piece;
         }
+        int getXoffset() {
+            return xoffset_;
+        }
     private:
         Piece * getNextPieceNoColor(blist & blocks) {
             piece_type nextPiece = ( piece_type) (rand() % (LEL + 1));
