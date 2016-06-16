@@ -145,6 +145,8 @@ class Piece {
             return canMove(gb,dx,dy, ix,iy, mods);
         }
         bool canMove(GameBoard & gb, int ix,int iy, int dx, int dy,std::vector<Modification> &mods) {
+            if (dy < 0 || dy > gb.maxy()-1)
+                return false;
             blist::iterator eitr = litr_;
             eitr++;
             blist::iterator foundItr =std::find_if(sitr_, eitr, [&ix,&iy](Block &b)->bool {return b.x_ == ix && b.y_ == iy;})  ;
