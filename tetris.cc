@@ -99,6 +99,8 @@ class TetrisGame {
                     gameScreen_.clear();
                     board_win.clear();
                     if (curPiecep->done_moving()) {
+                        if (gameOver(curPiecep))
+                            done = true;
                         switch (checkCompleteRows(tetrisGameBoard, blocks_)) {
                             case 4: score_ +=100; break;
                             case 3: score_ +=50; break;
@@ -107,8 +109,6 @@ class TetrisGame {
                             default:
                             case 0: score_ +=1; break;
                         }
-                        if (gameOver(curPiecep))
-                            done = true;
                         int moveRight = rand() %8;
                         for (int i = 0; i < moveRight; i++) {
                             nextPiecep->right(tetrisGameBoard);

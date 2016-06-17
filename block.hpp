@@ -22,6 +22,22 @@ class Block : public Movable, public Vectorable {
         Block(int x, int y, color_t color=RED ) :x_(x), y_(y), color_(color){dy_ = 1;dx_ =0;}
         Block(int x, int y, int dx, int dy, color_t color=RED ) :x_(x), y_(y), color_(color),dy_(dy),dx_(dx){}
 
+        Block(Block && other ) {
+            this->x_ = other.x_;
+            this->y_ = other.y_;
+            this->dy_ = other.dy_;
+            this->dx_ = other.dx_;
+            this->color_ = other.color_;
+        }
+        Block& operator=(const Block& other) {
+            this->x_ = other.x_;
+            this->y_ = other.y_;
+            this->dy_ = other.dy_;
+            this->dx_ = other.dx_;
+            this->color_ = other.color_;
+            return *this;
+        }
+
         void setColor(color_t c) {color_ =c ;}
         color_t getColor() {return color_;}
 

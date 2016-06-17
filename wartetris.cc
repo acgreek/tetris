@@ -10,7 +10,8 @@ typedef enum { LEFT, RIGHT } direction_t;
 
 static void shiftRowsDown(GameBoard & gb,blist & blocks, int column,direction_t dir) {
     std::for_each(blocks.begin(), blocks.end(), [&column, &gb ](Block & b) {if (b.x_ == column ){  b.unmark(gb);};});
-    blocks.erase(std::remove_if(blocks.begin(), blocks.end(), [&column](Block & b)->bool { return b.x_ == column;}), blocks.end()  );
+    blist::iterator new_end = std::remove_if(blocks.begin(), blocks.end(), [&column](Block & b)->bool { return b.x_ == column;});
+    blocks.erase(new_end, blocks.end());
     if (LEFT == dir )
         std::for_each(blocks.begin(), blocks.end(), [&column, &gb ](Block & b) {if (b.x_ < column ){ b.unmark(gb); b.x_++; b.mark(gb);};});
     else
@@ -27,7 +28,7 @@ static int checkCompleteRows(GameBoard & gb, blist & blocks , direction_t dir) {
             if (gb.isClear(x,y))
                 break;
         }
-        if (gb.maxy()  ==y) {
+        if (gb.maxy() == y) {
             rowsRemoved++;
             shiftRowsDown(gb,blocks,x,dir);
             x--;
@@ -45,8 +46,18 @@ static bool gameOver(std::shared_ptr<Piece> curPiecep, GameBoard & tetrisGameBoa
 
 #define MIN(A,B) (A >B ? B :A)
 
-void isDoneMoving(direction_t dir, std::shared_ptr<Piece> & curPiecep,std::shared_ptr<Piece> &nextPiecep,PieceSelector & pieceSelector, GameBoard & tetrisGameBoard, blist & blocks_,blist &nextblocks_,Window_interface & next_piece_win , int & score_, bool & done) {
+void isDoneMoving(direction_t dir, std::shared_ptr<Piece> & curPiecep,std::shared_ptr<Piece> & otherPiecep,std::shared_ptr<Piece> &nextPiecep,PieceSelector & pieceSelector, GameBoard & tetrisGameBoard, blist & blocks_,blist &nextblocks_,Window_interface & next_piece_win , int & score_, bool & done) {
     if (curPiecep->done_moving()) {
+
+        if (gameOver(curPiecep, tetrisGameBoard)){
+            score_ += 1000;
+            done = true;
+        }
+
+        blist temp;
+        otherPiecep->unmark(tetrisGameBoard);
+        otherPiecep->litr_++;
+        temp.splice(temp.begin(), blocks_, otherPiecep->sitr_, otherPiecep->litr_);
         switch (checkCompleteRows(tetrisGameBoard, blocks_, dir)) {
             case 4: score_ +=100; break;
             case 3: score_ +=50; break;
@@ -55,10 +66,16 @@ void isDoneMoving(direction_t dir, std::shared_ptr<Piece> & curPiecep,std::share
             default:
             case 0: score_ +=1; break;
         }
-        if (gameOver(curPiecep, tetrisGameBoard)){
-            score_ += 1000;
-            done = true;
-        }
+        blocks_.splice(blocks_.end(), temp, temp.begin(), temp.end());
+        otherPiecep->litr_ = blocks_.end();
+        --otherPiecep->litr_;
+        otherPiecep->sitr_ = otherPiecep->litr_;
+        --otherPiecep->sitr_;
+        --otherPiecep->sitr_;
+        --otherPiecep->sitr_;
+
+        otherPiecep->mark(tetrisGameBoard);
+
         next_piece_win.clear();
         blocks_.splice(blocks_.begin(), nextblocks_);
         curPiecep = std::move(nextPiecep);
@@ -71,7 +88,6 @@ void isDoneMoving(direction_t dir, std::shared_ptr<Piece> & curPiecep,std::share
         }
         curPiecep->markAll(tetrisGameBoard);
     }
-
 }
 
 class TetrisGame {
@@ -167,8 +183,8 @@ class TetrisGame {
                 if (needRedraw) {
                     gameScreen_.clear();
                     board_win.clear();
-                    isDoneMoving(LEFT,curPiecep,nextPiecep,pieceSelector, tetrisGameBoard, blocks_,nextblocks_,next_piece_win, scorePlayer1_,done);
-                    isDoneMoving(RIGHT, curOtherPiecep,nextOtherPiecep,OtherPieceSelector, tetrisGameBoard, blocks_,otherNextblocks_,next_other_piece_win, scorePlayer2_,done);
+                    isDoneMoving(LEFT,curPiecep,curOtherPiecep, nextPiecep,pieceSelector, tetrisGameBoard, blocks_,nextblocks_,next_piece_win, scorePlayer1_,done);
+                    isDoneMoving(RIGHT,curOtherPiecep,curPiecep, nextOtherPiecep,OtherPieceSelector, tetrisGameBoard, blocks_,otherNextblocks_,next_other_piece_win, scorePlayer2_,done);
                     std::for_each(blocks_.begin(), blocks_.end(), [&](Block & b) {board_win.draw(b,1,1);});
                     gameScreen_.refreshMain();
                     board_win.refresh();

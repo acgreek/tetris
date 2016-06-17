@@ -6,17 +6,28 @@ class Piece {
         virtual ~Piece() {}
         virtual void construct(blist & blocks,int offset=0) = 0 ;
 
-        virtual void move(GameBoard &gb) {
+        void unmark(GameBoard &gb) {
             blist::iterator eitr = litr_;
             eitr++;
             std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
+        }
+        void mark(GameBoard &gb) {
+            blist::iterator eitr = litr_;
+            eitr++;
+            std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
+        }
+
+        virtual void move(GameBoard &gb) {
+            blist::iterator eitr = litr_;
+            eitr++;
+            unmark(gb);
             if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMove(gb);})) {
                 std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMove();});
             }
             else {
                 sitr_->stopMoving();
             }
-            std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
+            mark(gb);
         }
         virtual bool down(GameBoard &gb) {
             bool result = false;
@@ -169,8 +180,10 @@ class Piece {
             return citr;
         }
 
+    public:
         blist::iterator sitr_;
         blist::iterator litr_;
+    protected:
         enum {HORIZONAL, VERTICAL,UHORIZONAL, RVERTICAL} dir_;
 
 };
