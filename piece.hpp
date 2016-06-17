@@ -79,7 +79,11 @@ class Piece {
             return result;
         }
         bool done_moving() {
-            return findIf([](Block &b)->bool {return b.done_moving();});
+            bool result = findIf([](Block &b)->bool {return b.done_moving();});
+            if (result)
+                forEachBlock([](Block &b){ b.stopMoving(); });
+            return result;
+
         }
         void unmarkAll(GameBoard &gb) {
             forEachBlock(std::bind(&Block::unmark, std::placeholders::_1, std::ref(gb)));

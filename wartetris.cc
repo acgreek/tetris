@@ -39,7 +39,7 @@ static int checkCompleteRows(GameBoard & gb, blist & blocks , direction_t dir) {
     return rowsRemoved;
 }
 static bool gameOver(std::shared_ptr<Piece> curPiecep, GameBoard & tetrisGameBoard) {
-    return curPiecep->findIf([&](Block &b)->bool {return b.done_moving() && (b.getX() == 0 || b.getX() == ((tetrisGameBoard.maxx()-2)));});
+    return curPiecep->findIf([&](Block &b)->bool {return b.done_moving() && (b.getX() == 0 || b.getX() == tetrisGameBoard.maxx()-1);});
 }
 
 #include "gamescreen.hpp"
@@ -140,8 +140,8 @@ class TetrisGame {
             int max_x = real_max_x;
             int max_y = real_max_y;
             Window_interface & board_win = gameScreen_.getWindow(13,max_x,offsetCenterY,0);
-            Window_interface & score1_win = gameScreen_.getWindow(3, 12, max_y-4, offsetCenterX/4-1);
-            Window_interface & score2_win = gameScreen_.getWindow(3, 12, max_y-4, (offsetCenterX/4 *3)-1);
+            Window_interface & score1_win = gameScreen_.getWindow(3, 12, max_y-4, max_x/4-1);
+            Window_interface & score2_win = gameScreen_.getWindow(3, 12, max_y-4, ((max_x/4) *3)-1);
             Window_interface & next_piece_win = gameScreen_.getWindow(5, 6, 2, offsetCenterX /2 +11);
             Window_interface & next_other_piece_win = gameScreen_.getWindow(5, 6, 2, offsetCenterX + offsetCenterX /2 + 11);
             max_y = max_y-6;
@@ -190,7 +190,7 @@ class TetrisGame {
                     board_win.refresh();
                     score1_win.text(1, 1, "score: %d",scorePlayer1_);
                     score1_win.refresh();
-                    score2_win.text(1, 1, "score: %d",scorePlayer1_);
+                    score2_win.text(1, 1, "score: %d",scorePlayer2_);
                     score2_win.refresh();
                     next_piece_win.refresh();
                     next_other_piece_win.refresh();

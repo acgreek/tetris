@@ -140,7 +140,7 @@ class Block : public Movable, public Vectorable {
                 uncheckedMoveLeft();
                 return true;
             } else {
-                if (-1 == x_)
+                if (-1 == dx_)
                     stopMoving();
             }
             return false;
@@ -163,7 +163,7 @@ class Block : public Movable, public Vectorable {
                 uncheckedMoveRight();
                 return true;
             } else {
-                if (1 == x_)
+                if (1 == dx_)
                     stopMoving();
             }
             return false;
