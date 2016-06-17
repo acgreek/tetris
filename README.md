@@ -1,6 +1,6 @@
 # build
-cmake .
-make
+* cmake .
+* make
 
 
 # wartetris
