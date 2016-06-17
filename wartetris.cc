@@ -39,7 +39,7 @@ static int checkCompleteRows(GameBoard & gb, blist & blocks , direction_t dir) {
     return rowsRemoved;
 }
 static bool gameOver(std::shared_ptr<Piece> curPiecep, GameBoard & tetrisGameBoard) {
-    return curPiecep->findIf([&](Block &b)->bool {return b.done_moving() && (b.getX() == 0 || b.getX() == (tetrisGameBoard.maxx()-3));});
+    return curPiecep->findIf([&](Block &b)->bool {return b.done_moving() && (b.getX() == 0 || b.getX() == ((tetrisGameBoard.maxx()-2)));});
 }
 
 #include "gamescreen.hpp"
