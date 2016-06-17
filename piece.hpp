@@ -6,18 +6,52 @@ class Piece {
         virtual ~Piece() {}
         virtual void construct(blist & blocks,int offset=0) = 0 ;
 
-        virtual void move(GameBoard &gb) {
+        void unmark(GameBoard &gb) {
             blist::iterator eitr = litr_;
             eitr++;
             std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
-            if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canmove(gb);})) {
-                std::for_each(sitr_, eitr, [](Block & b) {b.uncheckedMove();});
+        }
+        void mark(GameBoard &gb) {
+            blist::iterator eitr = litr_;
+            eitr++;
+            std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
+        }
+
+        virtual void move(GameBoard &gb) {
+            blist::iterator eitr = litr_;
+            eitr++;
+            unmark(gb);
+            if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMove(gb);})) {
+                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMove();});
             }
             else {
                 sitr_->stopMoving();
-
+            }
+            mark(gb);
+        }
+        virtual bool down(GameBoard &gb) {
+            bool result = false;
+            blist::iterator eitr = litr_;
+            eitr++;
+            std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
+            if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMoveDown(gb);})) {
+                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveDown();});
+                result = true;
             }
             std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
+            return result;
+        }
+        virtual bool up(GameBoard &gb) {
+            bool result = false;
+            blist::iterator eitr = litr_;
+            eitr++;
+            std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
+            if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMoveUp(gb);})) {
+                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveUp();});
+                result= true;
+            }
+            std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
+            return result;
         }
         virtual bool left(GameBoard &gb) {
             bool result = false;
@@ -25,7 +59,7 @@ class Piece {
             eitr++;
             std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
             if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMoveLeft(gb);})) {
-                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveLeft(gb);});
+                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveLeft();});
                 result =true;
             }
             std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
@@ -38,14 +72,18 @@ class Piece {
             eitr++;
             std::for_each(sitr_, eitr, [&](Block & b) {b.unmark(gb);});
             if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMoveRight(gb);})) {
-                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveRight(gb);});
+                std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMoveRight();});
                 result =true;
             }
             std::for_each(sitr_, eitr, [&](Block & b) {b.mark(gb);});
             return result;
         }
         bool done_moving() {
-            return findIf([](Block &b)->bool {return b.done_moving();});
+            bool result = findIf([](Block &b)->bool {return b.done_moving();});
+            if (result)
+                forEachBlock([](Block &b){ b.stopMoving(); });
+            return result;
+
         }
         void unmarkAll(GameBoard &gb) {
             forEachBlock(std::bind(&Block::unmark, std::placeholders::_1, std::ref(gb)));
@@ -122,6 +160,8 @@ class Piece {
             return canMove(gb,dx,dy, ix,iy, mods);
         }
         bool canMove(GameBoard & gb, int ix,int iy, int dx, int dy,std::vector<Modification> &mods) {
+            if (dy < 0 || dy > gb.maxy()-1)
+                return false;
             blist::iterator eitr = litr_;
             eitr++;
             blist::iterator foundItr =std::find_if(sitr_, eitr, [&ix,&iy](Block &b)->bool {return b.x_ == ix && b.y_ == iy;})  ;
@@ -144,8 +184,10 @@ class Piece {
             return citr;
         }
 
+    public:
         blist::iterator sitr_;
         blist::iterator litr_;
+    protected:
         enum {HORIZONAL, VERTICAL,UHORIZONAL, RVERTICAL} dir_;
 
 };

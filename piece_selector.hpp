@@ -6,14 +6,17 @@
 #include "pieces.hpp"
 class PieceSelector {
     public:
-        PieceSelector(): currentPiece_(SQUARE) {}
+        PieceSelector(int dx, int dy, int xoffset= 0, int yoffset=0) :dx_(dx), dy_(dy), xoffset_(xoffset), yoffset_(yoffset),currentPiece_(SQUARE) {}
+        PieceSelector():dx_(0), dy_(1), currentPiece_(SQUARE) {}
         Piece * getNextPiece(blist & blocks) {
             Piece * piece = getNextPieceNoColor(blocks);
             int cnum =rand() % (Block::getMaxColorNum()+1);
             Block::color_t color = Block::getEnumByNum(cnum);
-
-            piece->forEachBlock([color](Block & b) {b.setColor(color);});
+            piece->forEachBlock([&](Block & b) {b.setColor(color);b.setDxDy(dx_,dy_); b.setX(b.getX() + xoffset_); b.setY(b.getY() + yoffset_);});
             return piece;
+        }
+        int getXoffset() {
+            return xoffset_;
         }
     private:
         Piece * getNextPieceNoColor(blist & blocks) {
@@ -50,6 +53,10 @@ class PieceSelector {
                     return new SquarePiece(square_);
             }
         }
+        int dx_;
+        int dy_;
+        int xoffset_;
+        int yoffset_;
         enum piece_type {ZED, LZED, LOG, SQUARE, PYRAMID, EL, LEL} currentPiece_ ;
         ZPiece z_;
         LZPiece lz_;

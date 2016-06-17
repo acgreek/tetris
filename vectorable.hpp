@@ -1,6 +1,7 @@
 
 class Vectorable {
     public:
+        virtual ~Vectorable(){  }
         virtual int getX() const = 0;
         virtual int getY() const = 0;
         virtual int getZ() const = 0;
