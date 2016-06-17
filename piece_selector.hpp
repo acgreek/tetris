@@ -6,7 +6,10 @@
 #include "pieces.hpp"
 class PieceSelector {
     public:
-        PieceSelector(int dx, int dy, int xoffset= 0, int yoffset=0) :dx_(dx), dy_(dy), xoffset_(xoffset), yoffset_(yoffset),currentPiece_(SQUARE) {}
+        PieceSelector(int dx, int dy, int xoffset= 0, int yoffset=0) :dx_(dx), dy_(dy), xoffset_(xoffset), yoffset_(yoffset)
+        {
+               currentPiece_ = ( piece_type) (rand() % (LEL + 1));
+        }
         PieceSelector():dx_(0), dy_(1), currentPiece_(SQUARE) {}
         Piece * getNextPiece(blist & blocks) {
             Piece * piece = getNextPieceNoColor(blocks);
