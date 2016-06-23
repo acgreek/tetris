@@ -80,7 +80,7 @@ class TetrisGame {
             int currentCount = 1;
             PieceSelector  pieceSelector;
             std::shared_ptr<Piece> curPiecep(pieceSelector.getNextPiece(blocks_));
-            int moveRight = rand() %8;
+            int moveRight = rand() %(TETRIS_DEFAULT_WIDTH -1);
             for (int i = 0; i < moveRight; i++) {
                 curPiecep->right(tetrisGameBoard);
             }

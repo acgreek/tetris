@@ -62,7 +62,7 @@ class Window : public Window_interface {
                 case Block::BLUE: setColor (2);break;
                 case Block::GREEN: setColor (3);break;
                 case Block::WHITE: setColor (4);break;
-
+                case Block::MAX_COLOR: abort(); break;
             }
             char str[2] = "A";
             str[0] = 'A' + b.getColor();
