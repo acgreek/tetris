@@ -8,6 +8,6 @@ class Movable {
         virtual void up(GameBoard & gb) = 0;
         virtual bool left(GameBoard & gb) = 0;
         virtual bool right(GameBoard & gb) = 0;
-        virtual bool done_moving() = 0;
+        virtual bool done_moving()const  = 0;
 };
 #endif

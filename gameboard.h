@@ -19,12 +19,12 @@ class GameBoard {
             memset(board, CLEAR_BLOCK, sizeof(board[0][0]) * MAXBOARDW* MAXBOARDH);
 
         }
-        int maxx() {return max_x_;}
-        int maxy() {return max_y_;}
+        int maxx() const {return max_x_;}
+        int maxy() const {return max_y_;}
         void clear(int x, int y) {
             board[x][y] = CLEAR_BLOCK;
         }
-        bool isClear(int x, int y) {
+        bool isClear(int x, int y) const  {
             return board[x][y] == CLEAR_BLOCK;
         }
         void set(int x, int y, char what) {

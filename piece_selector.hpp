@@ -18,7 +18,7 @@ class PieceSelector {
             piece->forEachBlock([&](Block & b) {b.setColor(color);b.setDxDy(dx_,dy_); b.setX(b.getX() + xoffset_); b.setY(b.getY() + yoffset_);});
             return piece;
         }
-        int getXoffset() {
+        int getXoffset() const {
             return xoffset_;
         }
     private:

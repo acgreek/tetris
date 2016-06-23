@@ -12,7 +12,7 @@ class Block : public Movable, public Vectorable {
         typedef enum {RED, BLUE, GREEN,WHITE, MAX_COLOR} color_t;
 
         static int getMaxColorNum() {
-            return 4;
+            return MAX_COLOR;
         }
         static color_t getEnumByNum(int n) {
             return (color_t)(n%MAX_COLOR);
@@ -39,7 +39,8 @@ class Block : public Movable, public Vectorable {
         }
 
         void setColor(color_t c) {color_ =c ;}
-        color_t getColor() {return color_;}
+
+        color_t getColor() const {return color_;}
 
         void setDxDy(int dx, int dy) {dx_ =dx; dy_ =dy;}
 
@@ -52,16 +53,16 @@ class Block : public Movable, public Vectorable {
         int getZ() const  {
             return 0;
         }
-        int setX(int x){
+        int setX(const int x){
             return x_ = x;
         }
-        int setY(int y){
+        int setY(const int y){
             return y_ = y;
         }
         int setZ(__attribute__((unused))int z){
             return 0;
         }
-        void set(GameBoard & gb, int x, int y) {
+        void set(GameBoard & gb, const int x, const int y) {
             unmark(gb);
             x_ = x;
             y_ = y;
@@ -73,7 +74,7 @@ class Block : public Movable, public Vectorable {
         void mark(GameBoard & gb) {
             gb.set(x_,y_,'o');
         }
-        bool canMove(GameBoard & gb) {
+        bool canMove(const GameBoard & gb) const  {
             if ((1 == dy_ &&  y_ == gb.maxy()-1)  ||
                 (-1 == dy_ &&  y_ == 0) ||
                 (1 == dx_ &&  x_ == gb.maxx()-1)  ||
@@ -113,16 +114,16 @@ class Block : public Movable, public Vectorable {
             }
            mark(gb);
         }
-        bool canMoveUp(GameBoard & gb) {
+        bool canMoveUp(GameBoard & gb) const  {
             return (!done_moving() && y_ > 0 && gb.isClear(x_,y_-1));
         }
-        bool canMoveDown(GameBoard & gb) {
+        bool canMoveDown(GameBoard & gb) const {
             if (y_ == gb.maxy()-1 || !gb.isClear(x_,y_+1)){
                 return false;
             }
             return true;
         }
-        bool canMoveLeft(GameBoard & gb) {
+        bool canMoveLeft(GameBoard & gb) const {
             return (!done_moving() && x_ > 0 && gb.isClear(x_-1,y_));
         }
         void stopMoving() {
@@ -145,7 +146,7 @@ class Block : public Movable, public Vectorable {
             }
             return false;
         }
-        bool canMoveRight(GameBoard & gb) {
+        bool canMoveRight(GameBoard & gb) const {
             return (!done_moving() && x_ < gb.maxx()&& gb.isClear(x_+1,y_));
         }
         void uncheckedMoveRight() {
@@ -168,7 +169,7 @@ class Block : public Movable, public Vectorable {
             }
             return false;
         }
-        bool done_moving() {
+        bool done_moving() const {
             return dy_ == 0 && dx_ == 0;
         }
         int x_;

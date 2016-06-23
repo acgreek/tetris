@@ -198,10 +198,10 @@ class TetrisGame {
                 }
             }
         }
-        int getScorePlayer1() {
+        int getScorePlayer1() const {
             return scorePlayer1_;
         }
-        int getScorePlayer2() {
+        int getScorePlayer2() const {
             return scorePlayer2_;
         }
     private:

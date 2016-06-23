@@ -6,7 +6,7 @@
 #include "block.hpp"
 #include "piece_selector.hpp"
 
-static void shiftRowsDown(GameBoard & gb,blist & blocks, int row) {
+static void shiftRowsDown(GameBoard & gb,blist & blocks, const int row) {
     std::for_each(blocks.begin(), blocks.end(), [&row, &gb ](Block & b) {if (b.y_ == row ){  b.unmark(gb);};});
     blocks.erase(std::remove_if(blocks.begin(), blocks.end(), [&row](Block & b)->bool { return b.y_ == row;}), blocks.end()  );
     std::for_each(blocks.begin(), blocks.end(), [&row, &gb ](Block & b) {if (b.y_ < row ){ b.unmark(gb); b.y_++; b.mark(gb);};});
@@ -31,7 +31,7 @@ static int checkCompleteRows(GameBoard & gb, blist & blocks) {
     }
     return rowsRemoved;
 }
-static bool gameOver(std::shared_ptr<Piece> curPiecep) {
+static bool gameOver(const std::shared_ptr<Piece> curPiecep) {
     return curPiecep->findIf([](Block &b)->bool {return b.getY() == 0;});
 }
 

@@ -156,10 +156,10 @@ class Piece {
             int nx;
             int ny;
         };
-        bool canRMove(GameBoard & gb, int ix,int iy, int dx, int dy,std::vector<Modification> &mods) {
+        bool canRMove(GameBoard & gb, int ix,int iy, int dx, int dy,std::vector<Modification> &mods) const {
             return canMove(gb,dx,dy, ix,iy, mods);
         }
-        bool canMove(GameBoard & gb, int ix,int iy, int dx, int dy,std::vector<Modification> &mods) {
+        bool canMove(GameBoard & gb, int ix,int iy, int dx, int dy,std::vector<Modification> &mods) const {
             if (dy < 0 || dy > gb.maxy()-1)
                 return false;
             blist::iterator eitr = litr_;
