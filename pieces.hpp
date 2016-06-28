@@ -13,9 +13,9 @@ class SquarePiece :public Piece {
             litr_ = blocks.end();
             --litr_;
         }
-        virtual void rotateClockwise() {
+        virtual void rotateClockwise(__attribute__((unused)) GameBoard &gb) {
         }
-        virtual void rotateCounterClockwise() {
+        virtual void rotateCounterClockwise(__attribute__((unused))GameBoard &gb) {
         }
 };
 class LZPiece :public Piece {
