@@ -19,7 +19,7 @@ static void shiftRowsDown(GameBoard & gb,blist & blocks, int column,direction_t 
     std::for_each(blocks.begin(), blocks.end(), [&column, &gb ](Block & b) {b.mark(gb);});
 }
 
-static int checkCompleteRows(GameBoard & gb, blist & blocks , direction_t dir) {
+static int checkCompleteRows(GameBoard & gb, blist & blocks, const direction_t dir) {
     int rowsRemoved=0;
     int x=gb.maxx();
     while (x > 0) {
@@ -46,14 +46,12 @@ static bool gameOver(std::shared_ptr<Piece> curPiecep, GameBoard & tetrisGameBoa
 
 #define MIN(A,B) (A >B ? B :A)
 
-void isDoneMoving(direction_t dir, std::shared_ptr<Piece> & curPiecep,std::shared_ptr<Piece> & otherPiecep,std::shared_ptr<Piece> &nextPiecep,PieceSelector & pieceSelector, GameBoard & tetrisGameBoard, blist & blocks_,blist &nextblocks_,Window_interface & next_piece_win , int & score_, bool & done) {
+void isDoneMoving(const direction_t dir, std::shared_ptr<Piece> & curPiecep,std::shared_ptr<Piece> & otherPiecep,std::shared_ptr<Piece> &nextPiecep,PieceSelector & pieceSelector, GameBoard & tetrisGameBoard, blist & blocks_,blist &nextblocks_,Window_interface & next_piece_win , int & score_, bool & done) {
     if (curPiecep->done_moving()) {
-
         if (gameOver(curPiecep, tetrisGameBoard)){
             score_ += 1000;
             done = true;
         }
-
         blist temp;
         otherPiecep->unmark(tetrisGameBoard);
         otherPiecep->litr_++;
@@ -73,15 +71,12 @@ void isDoneMoving(direction_t dir, std::shared_ptr<Piece> & curPiecep,std::share
         --otherPiecep->sitr_;
         --otherPiecep->sitr_;
         --otherPiecep->sitr_;
-
         otherPiecep->mark(tetrisGameBoard);
-
         next_piece_win.clear();
         blocks_.splice(blocks_.begin(), nextblocks_);
         curPiecep = std::move(nextPiecep);
         nextPiecep.reset( pieceSelector.getNextPiece(nextblocks_));
         std::for_each(nextblocks_.begin(), nextblocks_.end(), [&](Block & b) {next_piece_win.draw(b, -pieceSelector.getXoffset() +1, 1);});
-
         int moveRight = rand() %11;
         for (int i = 0; i < moveRight; i++) {
             curPiecep->down(tetrisGameBoard);
@@ -124,7 +119,7 @@ class TetrisGame {
             return true;
 
         }
-        void addBlock(GameBoard &tetrisGameBoard, int x, int y) {
+        void addBlock(GameBoard &tetrisGameBoard,const int x,const  int y) {
             blocks_.push_back(Block(x,y ));
             blocks_.back().setDxDy(x,y);
             blocks_.back().mark(tetrisGameBoard);
