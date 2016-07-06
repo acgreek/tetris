@@ -175,10 +175,10 @@ class Block : public Movable, public Vectorable {
         int x_;
         int y_;
         int getDy() {
-         return dy_;
+            return dy_;
         }
         int getDx() {
-         return dx_;
+            return dx_;
         }
     private:
         color_t color_;
