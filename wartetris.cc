@@ -85,8 +85,15 @@ void isDoneMoving(const direction_t dir, std::shared_ptr<Piece> & curPiecep,std:
 	}
 }
 
-class Player1 {
+class Player {
 	public:
+		virtual ~Player(){};
+		virtual bool move(bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curPiecep)  =0;
+};
+
+class Player1: public Player {
+	public:
+		virtual ~Player1() {};
 		bool move(bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curPiecep) {
 			if (!kbhit) {
 				return false;
@@ -107,8 +114,9 @@ class Player1 {
 		}
 };
 
-class Player2 {
+class Player2 : public Player{
 	public:
+		virtual ~Player2() {};
 		bool move(bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curOtherPiecep) {
 			if (!kbhit) {
 				return false;
@@ -132,9 +140,10 @@ class Player2 {
 
 class TetrisGame {
 	public:
-		TetrisGame(GameScreen_interface &gameScreen) : gameScreen_(gameScreen), delay_(gameScreen.getDelay()) {}
-		Player1 player1;
-		Player2 player2;
+		TetrisGame(GameScreen_interface &gameScreen) : gameScreen_(gameScreen), delay_(gameScreen.getDelay()) {
+				player1.reset(new Player1);
+				player2.reset(new Player2);
+		}
 		void addBlock(GameBoard &tetrisGameBoard,const int x,const  int y) {
 			blocks_.push_back(Block(x,y ));
 			blocks_.back().setDxDy(x,y);
@@ -199,7 +208,7 @@ class TetrisGame {
 
 				}
 
-				needRedraw |= player1.move(kbhit, c, tetrisGameBoard,curPiecep) | player2.move(kbhit, c, tetrisGameBoard,curOtherPiecep) ;
+				needRedraw |= player1->move(kbhit, c, tetrisGameBoard,curPiecep) | player2->move(kbhit, c, tetrisGameBoard,curOtherPiecep) ;
 				usleep(delay_);
 				if (needRedraw) {
 					gameScreen_.clear();
@@ -226,6 +235,8 @@ class TetrisGame {
 			return scorePlayer2_;
 		}
 	private:
+		std::shared_ptr<Player> player1;
+		std::shared_ptr<Player> player2;
 		GameScreen_interface &gameScreen_;
 		int delay_;
 		blist blocks_;
