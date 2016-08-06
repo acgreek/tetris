@@ -88,6 +88,13 @@ class Player {
 	public:
 		virtual ~Player(){};
 		virtual bool move(bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curPiecep)  =0;
+    protected:
+        static void pushPieceDown(std::shared_ptr<Piece>& curPiecep,GameBoard & tetrisGameBoard) {
+            while (!curPiecep->done_moving()) {
+                curPiecep->move(tetrisGameBoard);
+            }
+
+        }
 };
 
 class Player1: public Player {
@@ -103,10 +110,7 @@ class Player1: public Player {
 				case 'd': curPiecep->right(tetrisGameBoard);break;
 				case 'z': curPiecep->rotateCounterClockwise(tetrisGameBoard);break;
 				case 'c': curPiecep->rotateClockwise(tetrisGameBoard);break;
-				case 'x':
-						  while (!curPiecep->done_moving()) {
-							  curPiecep->move(tetrisGameBoard);
-						  }
+				case 'x': pushPieceDown (curPiecep,tetrisGameBoard); break;
 			}
 			return true;
 
@@ -116,21 +120,17 @@ class Player1: public Player {
 class Player2 : public Player{
 	public:
 		virtual ~Player2() {};
-		bool move(bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curOtherPiecep) {
+		bool move(bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curPiecep) {
 			if (!kbhit) {
 				return false;
 			}
 			switch (c){
-				case 'i': curOtherPiecep->up(tetrisGameBoard);break;
-				case 'k': curOtherPiecep->down(tetrisGameBoard);break;
-				case 'j': curOtherPiecep->left(tetrisGameBoard);break;
-				case 'm': curOtherPiecep->rotateCounterClockwise(tetrisGameBoard);break;
-				case '.': curOtherPiecep->rotateClockwise(tetrisGameBoard);break;
-				case ',':
-						  while (!curOtherPiecep->done_moving()) {
-							  curOtherPiecep->move(tetrisGameBoard);
-						  }
-						  break;
+				case 'i': curPiecep->up(tetrisGameBoard);break;
+				case 'k': curPiecep->down(tetrisGameBoard);break;
+				case 'j': curPiecep->left(tetrisGameBoard);break;
+				case 'm': curPiecep->rotateCounterClockwise(tetrisGameBoard);break;
+				case '.': curPiecep->rotateClockwise(tetrisGameBoard);break;
+				case ',': pushPieceDown (curPiecep,tetrisGameBoard); break;
 			}
 			return true;
 		}
@@ -146,23 +146,19 @@ class RandomPlayer: public Player{
 			last= time(NULL);
 		}
 		virtual ~RandomPlayer() {};
-		bool move(__attribute__((unused)) bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curOtherPiecep) {
+		bool move(__attribute__((unused)) bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curPiecep) {
 			time_t now = time(NULL);
 			if (last == now) {
 				return false;
 			}
 			c = random() % 6;
 			switch (c){
-				case 0: curOtherPiecep->up(tetrisGameBoard);break;
-				case 1: curOtherPiecep->down(tetrisGameBoard);break;
-				case 2: curOtherPiecep->left(tetrisGameBoard);break;
-				case 3: curOtherPiecep->rotateCounterClockwise(tetrisGameBoard);break;
-				case 4: curOtherPiecep->rotateClockwise(tetrisGameBoard);break;
-				case 5:
-					 while (!curOtherPiecep->done_moving()) {
-						curOtherPiecep->move(tetrisGameBoard);
-					}
-					break;
+				case 0: curPiecep->up(tetrisGameBoard);break;
+				case 1: curPiecep->down(tetrisGameBoard);break;
+				case 2: curPiecep->left(tetrisGameBoard);break;
+				case 3: curPiecep->rotateCounterClockwise(tetrisGameBoard);break;
+				case 4: curPiecep->rotateClockwise(tetrisGameBoard);break;
+				case 5: pushPieceDown (curPiecep,tetrisGameBoard); break;
 			}
 			last=now;
 			return true;
