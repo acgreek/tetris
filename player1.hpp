@@ -11,10 +11,7 @@ class Player1: public Player {
 				case 'd': curPiecep->right(tetrisGameBoard);break;
 				case 'z': curPiecep->rotateCounterClockwise(tetrisGameBoard);break;
 				case 'c': curPiecep->rotateClockwise(tetrisGameBoard);break;
-				case 'x':
-						  while (!curPiecep->done_moving()) {
-							  curPiecep->move(tetrisGameBoard);
-						  }
+				case 'x': pushPieceDown (curPiecep,tetrisGameBoard); break;
 			}
 			return true;
 
