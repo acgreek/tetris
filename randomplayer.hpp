@@ -22,7 +22,7 @@ class RandomPlayer: public Player{
 				case 2: curPiecep->left(tetrisGameBoard);break;
 				case 3: curPiecep->rotateCounterClockwise(tetrisGameBoard);break;
 				case 4: curPiecep->rotateClockwise(tetrisGameBoard);break;
-				case 5: pushPieceDown (curPiecep,tetrisGameBoard); break;
+				case 5: pushPieceDown (curPiecep.get(),tetrisGameBoard); break;
 			}
 			last=now;
 			return true;

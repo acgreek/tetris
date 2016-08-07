@@ -1,19 +1,7 @@
-class Player1: public Player {
-	public:
-		virtual ~Player1() {};
-		bool move(bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curPiecep) {
-			if (!kbhit) {
-				return false;
-			}
-			switch (c){
-				case 'w': curPiecep->up(tetrisGameBoard);break;
-				case 's': curPiecep->down(tetrisGameBoard);break;
-				case 'd': curPiecep->right(tetrisGameBoard);break;
-				case 'z': curPiecep->rotateCounterClockwise(tetrisGameBoard);break;
-				case 'c': curPiecep->rotateClockwise(tetrisGameBoard);break;
-				case 'x': pushPieceDown (curPiecep,tetrisGameBoard); break;
-			}
-			return true;
 
-		}
+class Player1 : public KeyBoardPlayer{
+	public:
+        Player1 () : KeyBoardPlayer('w', 's',0, 'd','z','c', 'x') {};
+
+		virtual ~Player1() {};
 };

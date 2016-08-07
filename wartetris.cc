@@ -1,6 +1,8 @@
 #include <unistd.h>
 #include <algorithm>
 #include <memory>
+#include <unordered_map>
+#include <functional>
 
 #include "gameboard.h"
 #include "block.hpp"
@@ -88,8 +90,6 @@ void isDoneMoving(const direction_t dir, std::shared_ptr<Piece> & curPiecep,std:
 #include "player1.hpp"
 #include "player2.hpp"
 #include "randomplayer.hpp"
-
-
 
 
 class TetrisGame {
