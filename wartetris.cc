@@ -84,97 +84,15 @@ void isDoneMoving(const direction_t dir, std::shared_ptr<Piece> & curPiecep,std:
 	}
 }
 
-class Player {
-	public:
-		virtual ~Player(){};
-		virtual bool move(bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curPiecep)  =0;
-};
-
-class Player1: public Player {
-	public:
-		virtual ~Player1() {};
-		bool move(bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curPiecep) {
-			if (!kbhit) {
-				return false;
-			}
-			switch (c){
-				case 'w': curPiecep->up(tetrisGameBoard);break;
-				case 's': curPiecep->down(tetrisGameBoard);break;
-				case 'd': curPiecep->right(tetrisGameBoard);break;
-				case 'z': curPiecep->rotateCounterClockwise(tetrisGameBoard);break;
-				case 'c': curPiecep->rotateClockwise(tetrisGameBoard);break;
-				case 'x':
-						  while (!curPiecep->done_moving()) {
-							  curPiecep->move(tetrisGameBoard);
-						  }
-			}
-			return true;
-
-		}
-};
-
-class Player2 : public Player{
-	public:
-		virtual ~Player2() {};
-		bool move(bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curOtherPiecep) {
-			if (!kbhit) {
-				return false;
-			}
-			switch (c){
-				case 'i': curOtherPiecep->up(tetrisGameBoard);break;
-				case 'k': curOtherPiecep->down(tetrisGameBoard);break;
-				case 'j': curOtherPiecep->left(tetrisGameBoard);break;
-				case 'm': curOtherPiecep->rotateCounterClockwise(tetrisGameBoard);break;
-				case '.': curOtherPiecep->rotateClockwise(tetrisGameBoard);break;
-				case ',':
-						  while (!curOtherPiecep->done_moving()) {
-							  curOtherPiecep->move(tetrisGameBoard);
-						  }
-						  break;
-			}
-			return true;
-		}
-};
-
-#include<time.h>
-/**
- * every second, player will randomly move piece
- */
-class RandomPlayer: public Player{
-	public:
-		RandomPlayer() {
-			last= time(NULL);
-		}
-		virtual ~RandomPlayer() {};
-		bool move(__attribute__((unused)) bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curOtherPiecep) {
-			time_t now = time(NULL);
-			if (last == now) {
-				return false;
-			}
-			c = random() % 6;
-			switch (c){
-				case 0: curOtherPiecep->up(tetrisGameBoard);break;
-				case 1: curOtherPiecep->down(tetrisGameBoard);break;
-				case 2: curOtherPiecep->left(tetrisGameBoard);break;
-				case 3: curOtherPiecep->rotateCounterClockwise(tetrisGameBoard);break;
-				case 4: curOtherPiecep->rotateClockwise(tetrisGameBoard);break;
-				case 5:
-					 while (!curOtherPiecep->done_moving()) {
-						curOtherPiecep->move(tetrisGameBoard);
-					}
-					break;
-			}
-			last=now;
-			return true;
-		}
-	private:
-		time_t last;
-};
+#include "player.hpp"
+#include "player1.hpp"
+#include "player2.hpp"
+#include "randomplayer.hpp"
 
 class TetrisGame {
 	public:
 		TetrisGame(GameScreen_interface &gameScreen) : gameScreen_(gameScreen), delay_(gameScreen.getDelay()) {
-				player1.reset(new Player1);
+				player1.reset(new RandomPlayer);
 				player2.reset(new RandomPlayer);
 		}
 		void addBlock(GameBoard &tetrisGameBoard,const int x,const  int y) {
