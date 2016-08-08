@@ -94,9 +94,9 @@ void isDoneMoving(const direction_t dir, std::shared_ptr<Piece> & curPiecep,std:
 
 class TetrisGame {
 	public:
-		TetrisGame(GameScreen_interface &gameScreen) : gameScreen_(gameScreen), delay_(gameScreen.getDelay()) {
-				player1.reset(new RandomPlayer);
-				player2.reset(new RandomPlayer);
+		TetrisGame(GameScreen_interface &gameScreen,Player * p1, Player *p2) : gameScreen_(gameScreen), delay_(gameScreen.getDelay()) {
+				player1.reset(p1);
+				player2.reset(p2);
 		}
 		void addBlock(GameBoard &tetrisGameBoard,const int x,const  int y) {
 			blocks_.push_back(Block(x,y ));
@@ -206,14 +206,45 @@ class TetrisGame {
 int main() {
 	/* initialize random seed: */
 	srand (time(NULL));
-	int p1, p2;
-	{
-		NCurses::GameScreen gameScreen;
-		TetrisGame tetris(gameScreen);
-		tetris.play();
-		p1 = tetris.getScorePlayer1();
-		p2 = tetris.getScorePlayer2();
+	bool done=false;
+	while (!done ){
+		fprintf(stdout,"Would you like to play a game?\n");
+		fprintf(stdout,"press:\n");
+		fprintf(stdout,"\t1 for single player vs ai\n");
+		fprintf(stdout,"\t2 for player vs player\n");
+		fprintf(stdout,"\tw ai vs ai\n");
+		fprintf(stdout,"\tn you do not want to play\n");
+		fprintf(stdout,":");
+		char command= getchar();
+		int p1, p2;
+		switch (command) {
+			case 'n': done =true;break;
+			case 'w':
+					  {NCurses::GameScreen gameScreen;
+					  TetrisGame tetris(gameScreen, new RandomPlayer, new RandomPlayer);
+					  tetris.play();
+					  p1 = tetris.getScorePlayer1();
+					  p2 = tetris.getScorePlayer2();
+					  break;}
+			case '1':
+					  {NCurses::GameScreen gameScreen;
+					  TetrisGame tetris(gameScreen, new Player1, new RandomPlayer);
+					  tetris.play();
+					  p1 = tetris.getScorePlayer1();
+					  p2 = tetris.getScorePlayer2();
+					  break;}
+			case '2':
+					  {NCurses::GameScreen gameScreen;
+					  TetrisGame tetris(gameScreen, new Player1, new Player2);
+					  tetris.play();
+					  p1 = tetris.getScorePlayer1();
+					  p2 = tetris.getScorePlayer2();
+					  break;}
+		}
+		std::cout << "final score player1: " << p1 <<  "  player 2: "<< p2<<  std::endl;
+
+
 	}
-	std::cout << "final score player1: " << p1 <<  "  player 2: "<< p2<<  std::endl;
-};
+}
+
 
