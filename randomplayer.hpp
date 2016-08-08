@@ -10,12 +10,17 @@ class RandomPlayer: public Player{
 			last= time(NULL);
 		}
 		virtual ~RandomPlayer() {};
-		bool move(__attribute__((unused)) bool kbhit, char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curPiecep) {
+        bool move(__attribute__((unused)) bool kbhit, __attribute__((unused)) char c, GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curPiecep) {
 			time_t now = time(NULL);
 			if (last == now) {
 				return false;
 			}
-			c = random() % 6;
+			last=now;
+            return moveRandom(tetrisGameBoard,curPiecep);
+		}
+	private:
+        bool moveRandom( GameBoard & tetrisGameBoard, std::shared_ptr<Piece>& curPiecep) {
+			char c = random() % 6;
 			switch (c){
 				case 0: curPiecep->up(tetrisGameBoard);break;
 				case 1: curPiecep->down(tetrisGameBoard);break;
@@ -24,9 +29,7 @@ class RandomPlayer: public Player{
 				case 4: curPiecep->rotateClockwise(tetrisGameBoard);break;
 				case 5: pushPieceDown (curPiecep.get(),tetrisGameBoard); break;
 			}
-			last=now;
-			return true;
-		}
-	private:
+            return true;
+        }
 		time_t last;
 };
