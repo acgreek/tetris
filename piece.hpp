@@ -23,6 +23,7 @@ class Piece {
             unmark(gb);
             if (eitr == std::find_if_not(sitr_, eitr, [&](Block &b) {return b.canMove(gb);})) {
                 std::for_each(sitr_, eitr, [&](Block & b) {b.uncheckedMove();});
+                hasMoved = true;
             }
             else {
                 sitr_->stopMoving();
@@ -187,6 +188,8 @@ class Piece {
     public:
         blist::iterator sitr_;
         blist::iterator litr_;
+        bool hasMoved =false;
+
     protected:
         enum {HORIZONAL, VERTICAL,UHORIZONAL, RVERTICAL} dir_;
 

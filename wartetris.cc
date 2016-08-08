@@ -47,10 +47,13 @@ static bool gameOver(std::shared_ptr<Piece> curPiecep, GameBoard & tetrisGameBoa
 
 #define MIN(A,B) (A >B ? B :A)
 
-void isDoneMoving(const direction_t dir, std::shared_ptr<Piece> & curPiecep,std::shared_ptr<Piece> & otherPiecep,std::shared_ptr<Piece> &nextPiecep,PieceSelector & pieceSelector, GameBoard & tetrisGameBoard, blist & blocks_,blist &nextblocks_,Window_interface & next_piece_win , int & score_, bool & done) {
+void isDoneMoving(const direction_t dir, std::shared_ptr<Piece> & curPiecep,std::shared_ptr<Piece> & otherPiecep,std::shared_ptr<Piece> &nextPiecep,PieceSelector & pieceSelector, GameBoard & tetrisGameBoard, blist & blocks_,blist &nextblocks_,Window_interface & next_piece_win , int & score_, int & otherPlayerScore, bool & done) {
 	if (curPiecep->done_moving()) {
 		if (gameOver(curPiecep, tetrisGameBoard)){
-			score_ += 1000;
+            if (curPiecep->hasMoved)
+    			score_ += 1000;
+            else
+                otherPlayerScore+= 1000;
 			done = true;
 		}
 		blist temp;
@@ -167,8 +170,8 @@ class TetrisGame {
 				if (needRedraw) {
 					gameScreen_.clear();
 					board_win.clear();
-					isDoneMoving(LEFT,curPiecep,curOtherPiecep, nextPiecep,pieceSelector, tetrisGameBoard, blocks_,nextblocks_,next_piece_win, scorePlayer1_,done);
-					isDoneMoving(RIGHT,curOtherPiecep,curPiecep, nextOtherPiecep,OtherPieceSelector, tetrisGameBoard, blocks_,otherNextblocks_,next_other_piece_win, scorePlayer2_,done);
+					isDoneMoving(LEFT,curPiecep,curOtherPiecep, nextPiecep,pieceSelector, tetrisGameBoard, blocks_,nextblocks_,next_piece_win, scorePlayer1_,scorePlayer2_, done);
+					isDoneMoving(RIGHT,curOtherPiecep,curPiecep, nextOtherPiecep,OtherPieceSelector, tetrisGameBoard, blocks_,otherNextblocks_,next_other_piece_win, scorePlayer2_,scorePlayer1_,done);
 					std::for_each(blocks_.begin(), blocks_.end(), [&](Block & b) {board_win.draw(b,1,1);});
 					gameScreen_.refreshMain();
 					board_win.refresh();
