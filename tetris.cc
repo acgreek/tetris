@@ -41,7 +41,7 @@ static bool gameOver(const std::shared_ptr<Piece> curPiecep) {
 
 class TetrisGame {
     public:
-        TetrisGame(GameScreen_interface &gameScreen) : gameScreen_(gameScreen), delay_(gameScreen.getDelay()) {}
+        TetrisGame(GameScreen &gameScreen) : gameScreen_(gameScreen), delay_(gameScreen.getDelay()) {}
         bool handleKeyBoard(GameBoard & tetrisGameBoard, bool & done,std::shared_ptr<Piece>& curPiecep) {
             if (!gameScreen_.kbhit()) {
                 return false;
@@ -134,20 +134,20 @@ class TetrisGame {
             return score_;
         }
     private:
-        GameScreen_interface &gameScreen_;
+        GameScreen &gameScreen_;
         int delay_;
         blist blocks_;
         blist nextblocks_;
         int score_ = 0;
 };
 
-#include "ncurses_game_screen.hpp"
+#include "gamescreen.hpp"
 #include <iostream>
 
 int main() {
     /* initialize random seed: */
     srand (time(NULL));
-    NCurses::GameScreen gameScreen;
+    GameScreen gameScreen;
     TetrisGame tetris(gameScreen);
     tetris.play();
     std::cout << "final score:" <<  tetris.getScore() << std::endl;

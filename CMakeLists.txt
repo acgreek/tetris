@@ -9,8 +9,8 @@ set (VERSION_MINOR 9.2)
 
 set(CMAKE_CXX_FLAGS "-Wall -Wextra -std=c++11 -ggdb3 -Wno-pmf-conversions")
 
-add_executable(tetris tetris.cc)
+add_executable(tetris tetris.cc ncurses_game_screen.cpp)
 target_link_libraries(tetris ${CURSES_LIBRARIES})
 
-add_executable(wartetris wartetris.cc)
+add_executable(wartetris wartetris.cpp ncurses_game_screen.cpp)
 target_link_libraries(wartetris ${CURSES_LIBRARIES})

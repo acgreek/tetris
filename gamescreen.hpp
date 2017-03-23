@@ -12,17 +12,23 @@ class Window_interface  {
         virtual void clear(void)  =0;
 };
 
-class GameScreen_interface {
+class GameScreen_impl;
+
+
+class GameScreen {
     public:
-        GameScreen_interface() {};
-        virtual ~GameScreen_interface() {};
-        virtual void getMaxyx(int &y, int &x) =0;
-        virtual Window_interface & getWindow(int height, int width, int yoffset, int xoffset) = 0;
-        virtual void refreshMain()  =0;
-        virtual void doupdate() =0;
-        virtual void clear(void) const  =0;
-        virtual bool kbhit() = 0;
-        virtual char lgetch() = 0;
-        virtual int getDelay() = 0;
+        GameScreen();
+        ~GameScreen();
+        void getMaxyx(int &y, int &x);
+        Window_interface & getWindow(int height, int width, int yoffset, int xoffset);
+        void refreshMain();
+        void doupdate();
+        void clear(void) const;
+        bool kbhit();
+        char lgetch();
+        int getDelay();
+    private:
+			GameScreen_impl *gameScreen;
 };
+
 #endif

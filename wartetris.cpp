@@ -97,7 +97,7 @@ void isDoneMoving(const direction_t dir, std::shared_ptr<Piece> & curPiecep,std:
 
 class TetrisGame {
 	public:
-		TetrisGame(GameScreen_interface &gameScreen,Player * p1, Player *p2) : gameScreen_(gameScreen), delay_(gameScreen.getDelay()) {
+		TetrisGame(GameScreen &gameScreen,Player * p1, Player *p2) : gameScreen_(gameScreen), delay_(gameScreen.getDelay()) {
 				player1.reset(p1);
 				player2.reset(p2);
 		}
@@ -194,7 +194,7 @@ class TetrisGame {
 	private:
 		std::shared_ptr<Player> player1;
 		std::shared_ptr<Player> player2;
-		GameScreen_interface &gameScreen_;
+		GameScreen & gameScreen_;
 		int delay_;
 		blist blocks_;
 		blist nextblocks_;
@@ -203,7 +203,7 @@ class TetrisGame {
 		int scorePlayer2_ = 0;
 };
 
-#include "ncurses_game_screen.hpp"
+#include "gamescreen.hpp"
 #include <iostream>
 
 int main() {
@@ -223,21 +223,21 @@ int main() {
 		switch (command) {
 			case 'n': done =true;break;
 			case 'w':
-					  {NCurses::GameScreen gameScreen;
+					  {GameScreen gameScreen;
 					  TetrisGame tetris(gameScreen, new RandomPlayer, new RandomPlayer);
 					  tetris.play();
 					  p1 = tetris.getScorePlayer1();
 					  p2 = tetris.getScorePlayer2();
 					  break;}
 			case '1':
-					  {NCurses::GameScreen gameScreen;
+					  {GameScreen gameScreen;
 					  TetrisGame tetris(gameScreen, new Player1, new RandomPlayer);
 					  tetris.play();
 					  p1 = tetris.getScorePlayer1();
 					  p2 = tetris.getScorePlayer2();
 					  break;}
 			case '2':
-					  {NCurses::GameScreen gameScreen;
+					  {GameScreen gameScreen;
 					  TetrisGame tetris(gameScreen, new Player1, new Player2);
 					  tetris.play();
 					  p1 = tetris.getScorePlayer1();
@@ -245,8 +245,6 @@ int main() {
 					  break;}
 		}
 		std::cout << "final score player1: " << p1 <<  "  player 2: "<< p2<<  std::endl;
-
-
 	}
 }
 

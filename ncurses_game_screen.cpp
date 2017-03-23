@@ -1,7 +1,8 @@
 #include "gamescreen.hpp"
-namespace NCurses {
-#include <ncurses.h>
 #include "keyboard.h"
+#include <ncurses.h>
+#include <memory>
+
 
 WINDOW *create_newwin(int height, int width, int starty, int startx) {
     auto *local_win = newwin(height, width, starty, startx);
@@ -40,9 +41,9 @@ class CursesSetup {
 class Window : public Window_interface {
     public:
 
-        Window() { }
-        void set(WINDOW *w)   {
-            w_.reset(w,delwin) ;
+        Window() :w_(NULL,[](WINDOW *w) {w=w;}) { }
+        void set(WINDOW *w) {  
+					w_  =  std::unique_ptr<WINDOW,void (*)(WINDOW * w)>(w,[](WINDOW *w) {delwin(w);}) ;
         }
         void setColor(int color) {
             if (currentColor_ != color) {
@@ -75,7 +76,7 @@ class Window : public Window_interface {
 
         }
         void clear(void) {
-            NCurses::wclear(w_.get());
+            wclear(w_.get());
         }
         void text(int x, int y, const char * fmt, ...) {
             setColor (5);
@@ -88,18 +89,19 @@ class Window : public Window_interface {
     private:
         int currentColor_ = 0;
         WINDOW * get() { return w_.get(); }
-        std::shared_ptr<WINDOW> w_;
+        std::unique_ptr<WINDOW, void (*)(WINDOW * w)> w_;
 };
-class GameScreen :public GameScreen_interface{
+
+class GameScreen_impl {
     public:
-        GameScreen():  cursesSetup() {
+        GameScreen_impl():  cursesSetup() {
             curs_set(FALSE);
         }
-        virtual ~GameScreen() {
+        virtual ~GameScreen_impl() {
 
         }
         virtual void clear(void) const {
-            NCurses::clear();
+            ::clear();
         }
         virtual void getMaxyx(int &y, int &x) {
             getmaxyx(stdscr, y, x);
@@ -114,14 +116,14 @@ class GameScreen :public GameScreen_interface{
 
         };
         virtual void doupdate(){
-            NCurses::doupdate();
+            ::doupdate();
         }
         virtual bool kbhit() {
-            return NCurses::kbhit();
+            return ::kbhit();
         }
         virtual char lgetch() {
 
-            return NCurses::lgetch();
+            return ::lgetch();
         }
         virtual int getDelay() {
            return 3000;
@@ -132,4 +134,14 @@ class GameScreen :public GameScreen_interface{
 
 };
 
-}// namespace
+
+GameScreen::GameScreen() { gameScreen = new GameScreen_impl;  };
+GameScreen::~GameScreen() { delete gameScreen;}
+void GameScreen::getMaxyx(int &y, int &x) { gameScreen->getMaxyx(y,x);}
+Window_interface & GameScreen::getWindow(int height, int width, int yoffset, int xoffset) {return gameScreen->getWindow (height, width, yoffset, xoffset);}
+void GameScreen::refreshMain()  {gameScreen->refreshMain();}
+void GameScreen::doupdate() {gameScreen->doupdate();}
+void GameScreen::clear(void) const {gameScreen->clear();} 
+bool GameScreen::kbhit() {return gameScreen->kbhit();}
+char GameScreen::lgetch() {return gameScreen->lgetch();}
+int GameScreen::getDelay() {return gameScreen->getDelay();}
