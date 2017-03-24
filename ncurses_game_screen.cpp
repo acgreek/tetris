@@ -4,7 +4,7 @@
 #include <memory>
 
 
-WINDOW *create_newwin(int height, int width, int starty, int startx) {
+static WINDOW *create_newwin(int height, int width, int starty, int startx) {
     auto *local_win = newwin(height, width, starty, startx);
     box(local_win, 0 , 0);/* 0, 0 gives default characters
                            * for the vertical and horizontal
@@ -131,7 +131,6 @@ class GameScreen_impl {
     private:
         CursesSetup cursesSetup;
         std::list<Window> windows;
-
 };
 
 
